@@ -4,6 +4,7 @@ import type { AlgorithmId } from "@/core/models/algorithms";
 import { gameTreeRecorder } from "./gameai/record_game_tree";
 import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, recordPrim, recordTopological } from "./graphs/record_graph";
 import { gridRecorder } from "./pathfinding/record_grid";
+import { recordBidirectional, recordJumpPoint, recordThetaStar } from "./pathfinding/record_grid_more";
 import { roadRecorder } from "./pathfinding/record_road";
 import type { Recorder } from "./recording";
 import { recordExponential, recordInterpolation, recordJump, recordTernary } from "./searching/record_more";
@@ -60,6 +61,10 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),
   astar: gridRecorder("astar"),
+  greedy: gridRecorder("greedy"),
+  bidirectional: recordBidirectional,
+  jps: recordJumpPoint,
+  thetaStar: recordThetaStar,
   roadAstar: roadRecorder("astar"),
   roadDijkstra: roadRecorder("dijkstra"),
   roadBfs: roadRecorder("bfs"),
