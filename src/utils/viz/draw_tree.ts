@@ -94,12 +94,13 @@ const CELL_H = 22;
 
 // B-trees: a box of key cells per node, leaves spread evenly and parents centred over their children.
 export function drawBTreeStep(ctx: Ctx, w: number, h: number, s: BTreeStep, progress = 1) {
+  const boxWidth = (node: { keys: number[] }) => Math.max(node.keys.length, 1) * CELL_W;
+  const margin = Math.max(...s.nodes.map(boxWidth)) / 2 + 10;
   const rowH = Math.min(72, (h - CELL_H - 28) / Math.max(s.depth, 1));
-  const px = (x: number) => 16 + x * (w - 32);
+  const px = (x: number) => margin + x * (w - 2 * margin);
   const py = (depth: number) => 14 + depth * rowH;
   // B-tree ids share the space with binary-tree ids; the offset keeps the two tweens apart.
   const at = new Map(s.nodes.map((node) => [node.id, tween(1e6 + node.id, px(node.x), py(node.depth), progress)]));
-  const boxWidth = (node: { keys: number[] }) => Math.max(node.keys.length, 1) * CELL_W;
 
   s.nodes.forEach((node) => {
     if (node.parent === null) return;

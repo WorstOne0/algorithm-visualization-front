@@ -25,6 +25,11 @@
     display: block;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-2) transparent;
+  }
+
   /* The thin bar under the home preview that fills while the next family waits its turn. */
   @keyframes preview-clock {
     from {

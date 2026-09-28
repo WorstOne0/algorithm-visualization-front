@@ -36,7 +36,7 @@ export const recordBTree: Recorder = (n, seed) => {
     const walk = (node: BNode, level: number, parent: number | null): number => {
       depth = Math.max(depth, level);
       const x = node.children.length ? node.children.map((child) => walk(child, level + 1, node.id)).reduce((sum, value) => sum + value, 0) / node.children.length : slot++;
-      nodes.push({ id: node.id, keys: [...node.keys], x, depth, parent, mark: marks.get(node.id), hot: hot.get(node.id) });
+      nodes.push({ id: node.id, keys: [...node.keys], x, depth: level, parent, mark: marks.get(node.id), hot: hot.get(node.id) });
       return x;
     };
     walk(root, 0, null);

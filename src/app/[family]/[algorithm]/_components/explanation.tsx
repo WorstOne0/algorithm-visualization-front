@@ -9,7 +9,7 @@ import { localize, TRANSLATIONS, type Algorithm, type Family } from "@/core/mode
 // Icons
 import { ArrowLeftIcon, PlayIcon } from "@/components/icons";
 // Utils
-import { formatNumber } from "@/utils/format";
+import { formatCompact } from "@/utils/format";
 import { VIZ_CSS } from "@/utils/viz";
 
 const SECTION = "card flex flex-col gap-[1.8rem] rounded-[1.4rem] px-[3rem] py-[2.8rem]";
@@ -104,7 +104,7 @@ export default function Explanation({ algorithm, family, onBackToPlayer }: { alg
                 <div className="h-[1rem] overflow-hidden rounded-[0.5rem] bg-surface-2">
                   <div className={`h-full rounded-[0.5rem] ${isSelf ? "bg-primary" : "bg-faint"}`} style={{ width: `${Math.max(4, (Math.log10(value) / chartMax) * 100).toFixed(0)}%` }} />
                 </div>
-                <span className="text-right font-mono text-[1.25rem]">{formatNumber(value, lang)}</span>
+                <span className="text-right font-mono text-[1.25rem] whitespace-nowrap">{formatCompact(value, lang)}</span>
               </div>
             ))}
           </div>
