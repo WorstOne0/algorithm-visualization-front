@@ -6,23 +6,21 @@ import type { Recorder, StepBase } from "../recording";
 
 export type GameNode = { id: number; d: number; kids: GameNode[]; leaf: number | null; x: number };
 
-// The tree is fixed for the whole recording; each step carries what the search knows so far.
-export type GameTree = { nodes: GameNode[]; root: GameNode; depth: number; leafCount: number };
+// The tree is fixed for the whole recording; each step carries what the search knows so far. `levelNames` overrides the
+// MAX / MIN labels down the left; `labels` replaces the value drawn over a node (visits and means for MCTS).
+export type GameTree = { nodes: GameNode[]; root: GameNode; depth: number; leafCount: number; levelNames?: string[] };
 
-export type GameTreeStep = StepBase & { tree: GameTree; cur: number; visited: Set<number>; values: Map<number, number>; pruned: Set<number>; best: Set<number> };
+export type GameTreeStep = StepBase & { tree: GameTree; cur: number; visited: Set<number>; values: Map<number, number>; pruned: Set<number>; best: Set<number>; labels?: Map<number, string> };
 
-const BRANCH = 3;
+export const BRANCH = 3;
 
-const bound = (value: number) => (value === Infinity ? "+∞" : value === -Infinity ? "−∞" : String(value));
-
-// Builds the recorder for plain minimax or alpha-beta; `n` is the depth in plies.
-export const gameTreeRecorder = (prune: boolean): Recorder => (n, seed) => {
-  const rand = seeded(seed);
+// A full b-ary tree of the given depth with random leaf scores from −9 to 9, laid out by leaf position.
+export function makeGameTree(depth: number, rand: () => number, branch = BRANCH): GameTree {
   const nodes: GameNode[] = [];
   const build = (d: number): GameNode => {
-    const node: GameNode = { id: nodes.length, d, kids: [], leaf: d === n ? Math.floor(rand() * 19) - 9 : null, x: 0 };
+    const node: GameNode = { id: nodes.length, d, kids: [], leaf: d === depth ? Math.floor(rand() * 19) - 9 : null, x: 0 };
     nodes.push(node);
-    if (d < n) for (let i = 0; i < BRANCH; i++) node.kids.push(build(d + 1));
+    if (d < depth) for (let i = 0; i < branch; i++) node.kids.push(build(d + 1));
     return node;
   };
   const root = build(0);
@@ -34,7 +32,17 @@ export const gameTreeRecorder = (prune: boolean): Recorder => (n, seed) => {
     node.x = (node.kids[0].x + node.kids[node.kids.length - 1].x) / 2;
   };
   place(root);
-  const tree: GameTree = { nodes, root, depth: n, leafCount: leaves.length };
+  return { nodes, root, depth, leafCount: leaves.length };
+}
+
+const bound = (value: number) => (value === Infinity ? "+∞" : value === -Infinity ? "−∞" : String(value));
+
+// Builds the recorder for plain minimax or alpha-beta; `n` is the depth in plies.
+export const gameTreeRecorder = (prune: boolean): Recorder => (n, seed) => {
+  const rand = seeded(seed);
+  const tree = makeGameTree(n, rand);
+  const { nodes, root } = tree;
+  const leaves = nodes.filter((node) => node.leaf !== null);
   const subtreeSize = (node: GameNode): number => 1 + node.kids.reduce((sum, kid) => sum + subtreeSize(kid), 0);
 
   const steps: GameTreeStep[] = [];

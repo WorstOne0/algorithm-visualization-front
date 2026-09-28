@@ -215,8 +215,8 @@ export const ALGORITHMS_BY_FAMILY: Record<FamilyId, AlgorithmRow[]> = {
   gameai: [
     { viz: "m", name: "Minimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Assume the opponent plays perfectly; pick the move with the best worst case.", pt: "Assume que o oponente joga perfeito; escolhe a jogada com o melhor pior caso." }, page: "minimax" },
     { viz: "m", name: "Alpha-beta pruning", avg: "O(b^(d/2))", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax that skips branches which cannot change the answer.", pt: "Minimax que pula ramos que não podem mudar a resposta." }, page: "alphabeta" },
-    { viz: "m", name: "Iterative deepening", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Search depth 1, 2, 3… until time runs out.", pt: "Busca profundidade 1, 2, 3… até acabar o tempo." } },
-    { viz: "m", name: "Expectimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax with chance nodes for dice and cards.", pt: "Minimax com nós de sorte para dados e cartas." } },
-    { viz: "m", name: "Monte Carlo tree search", avg: "—", worst: "—", space: "O(n)", desc: { en: "Random playouts guide which branches to grow.", pt: "Partidas aleatórias guiam quais ramos crescer." } },
+    { viz: "m", name: "Iterative deepening", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Search depth 1, 2, 3… until time runs out.", pt: "Busca profundidade 1, 2, 3… até acabar o tempo." }, page: "iterativeDeepening" },
+    { viz: "m", name: "Expectimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax with chance nodes for dice and cards.", pt: "Minimax com nós de sorte para dados e cartas." }, page: "expectimax" },
+    { viz: "m", name: "Monte Carlo tree search", avg: "—", worst: "—", space: "O(n)", desc: { en: "Random playouts guide which branches to grow.", pt: "Partidas aleatórias guiam quais ramos crescer." }, page: "mcts" },
   ],
 };

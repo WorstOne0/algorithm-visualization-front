@@ -103,7 +103,7 @@ export function drawGameTree(ctx: Ctx, w: number, h: number, s: GameTreeStep) {
   ctx.textAlign = "left";
   for (let d = 0; d <= depth; d++) {
     ctx.fillStyle = COLORS.text;
-    ctx.fillText(d % 2 === 0 ? "MAX" : "MIN", 6, py({ d }) + 3);
+    ctx.fillText(s.tree.levelNames?.[d] ?? (d % 2 === 0 ? "MAX" : "MIN"), 6, py({ d }) + 3);
   }
   ctx.lineWidth = 1.1;
   s.tree.nodes.forEach((node) =>
@@ -125,10 +125,12 @@ export function drawGameTree(ctx: Ctx, w: number, h: number, s: GameTreeStep) {
     ctx.arc(px(node), py(node), isCurrent ? r + 2 : r, 0, Math.PI * 2);
     ctx.fill();
     const value = node.leaf !== null ? node.leaf : s.values.get(node.id);
-    if (value === undefined || r < 4.5) return;
+    if (r < 4.5) return;
     ctx.font = monoFont(Math.max(8, Math.min(11, r)));
     ctx.fillStyle = isPruned ? "rgba(140,147,168,.4)" : isCurrent ? COLORS.act : COLORS.text;
-    ctx.fillText(String(value), px(node), node.leaf !== null ? py(node) + r + 10 : py(node) - r - 4);
+    if (value !== undefined) ctx.fillText(String(value), px(node), node.leaf !== null ? py(node) + r + 10 : py(node) - r - 4);
+    const label = s.labels?.get(node.id);
+    if (label !== undefined) ctx.fillText(label, px(node), node.leaf !== null && value !== undefined ? py(node) - r - 4 : py(node) + r + 10);
   });
 }
 

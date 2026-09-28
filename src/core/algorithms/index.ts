@@ -1,6 +1,7 @@
 // Models
 import type { AlgorithmId } from "@/core/models/algorithms";
 // Utils
+import { recordExpectimax, recordIterativeDeepening, recordMcts } from "./gameai/record_gameai_more";
 import { gameTreeRecorder } from "./gameai/record_game_tree";
 import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, recordPrim, recordTopological } from "./graphs/record_graph";
 import { recordBellmanFord, recordEdmondsKarp, recordFloydWarshall, recordKosaraju, recordTarjan, recordUnionFind } from "./graphs/record_graph_more";
@@ -47,6 +48,9 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   ternary: recordTernary,
   minimax: gameTreeRecorder(false),
   alphabeta: gameTreeRecorder(true),
+  iterativeDeepening: recordIterativeDeepening,
+  expectimax: recordExpectimax,
+  mcts: recordMcts,
   graphBfs: recordGraphBfs,
   graphDfs: recordGraphDfs,
   graphDijkstra: recordGraphDijkstra,
