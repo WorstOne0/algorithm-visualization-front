@@ -2,6 +2,7 @@
 import type { AlgorithmId } from "@/core/models/algorithms";
 // Utils
 import { gameTreeRecorder } from "./gameai/record_game_tree";
+import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, recordPrim, recordTopological } from "./graphs/record_graph";
 import { gridRecorder } from "./pathfinding/record_grid";
 import type { Recorder } from "./recording";
 import { recordBinary, recordLinear } from "./searching/record_search";
@@ -24,6 +25,12 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   binary: recordBinary,
   minimax: gameTreeRecorder(false),
   alphabeta: gameTreeRecorder(true),
+  graphBfs: recordGraphBfs,
+  graphDfs: recordGraphDfs,
+  graphDijkstra: recordGraphDijkstra,
+  prim: recordPrim,
+  kruskal: recordKruskal,
+  topological: recordTopological,
   bfs: gridRecorder("bfs"),
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),

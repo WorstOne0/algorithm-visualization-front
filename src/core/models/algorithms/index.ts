@@ -1,5 +1,6 @@
 // Models
 import { GAMEAI } from "./gameai";
+import { GRAPHS } from "./graphs";
 import { PATHFINDING } from "./pathfinding";
 import { SEARCHING } from "./searching";
 import { SORTING } from "./sorting";
@@ -7,7 +8,7 @@ import type { AlgorithmSpec } from "./spec";
 
 export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
 
-const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...GAMEAI };
+const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...GRAPHS, ...GAMEAI };
 
 export type AlgorithmId = keyof typeof SPECS;
 

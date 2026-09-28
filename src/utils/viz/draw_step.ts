@@ -1,5 +1,6 @@
 // Models
 import type { GameTreeStep } from "@/core/algorithms/gameai/record_game_tree";
+import type { GraphStep } from "@/core/algorithms/graphs/graph_model";
 import type { GridStep } from "@/core/algorithms/pathfinding/record_grid";
 import type { StepBase } from "@/core/algorithms/recording";
 import type { SearchStep } from "@/core/algorithms/searching/record_search";
@@ -8,6 +9,7 @@ import type { AlgorithmKind } from "@/core/models";
 // Utils
 import type { Ctx } from "./canvas";
 import { drawBars, drawGameTree, drawGrid, drawSearch } from "./draw";
+import { drawGraphStep } from "./draw_graph";
 
 // The player's renderer: one branch per algorithm kind, drawing the recorded step as it is.
 export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, step: StepBase) {
@@ -18,6 +20,8 @@ export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, st
       return drawSearch(ctx, w, h, step as SearchStep, { gap: 3, indices: true, values: true });
     case "grid":
       return drawGrid(ctx, w, h, step as GridStep, { showCosts: true });
+    case "graph":
+      return drawGraphStep(ctx, w, h, step as GraphStep);
     case "gametree":
       return drawGameTree(ctx, w, h, step as GameTreeStep);
     default:
