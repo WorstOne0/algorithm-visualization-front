@@ -7,7 +7,26 @@ import type { Counter, StepBase } from "../recording";
 export type TreeNode = { id: number; key: number; left: TreeNode | null; right: TreeNode | null; parent: TreeNode | null; red?: boolean; height?: number };
 export type NodeMark = "cur" | "path" | "fresh" | "pivot" | "done";
 // A laid-out node: x is the in-order column, depth the level; parent ids draw the edges.
-export type LaidNode = { id: number; key: number; x: number; depth: number; parent: number | null; red?: boolean; label?: string; mark?: NodeMark };
+// `text` replaces the key inside the node (a trie's character); `key` still drives nothing else.
+export type LaidNode = { id: number; key: number; x: number; depth: number; parent: number | null; red?: boolean; label?: string; text?: string; mark?: NodeMark };
+
+// An n-ary tree given as a flat list: leaves take the columns left to right, parents sit over the middle of their children.
+export function layoutForest(items: { id: number; key: number; parent: number | null; text?: string; label?: string; mark?: NodeMark }[]) {
+  const children = new Map<number | null, typeof items>();
+  items.forEach((item) => children.set(item.parent, [...(children.get(item.parent) ?? []), item]));
+  const nodes: LaidNode[] = [];
+  let column = 0;
+  let depth = 0;
+  const walk = (item: (typeof items)[number], level: number): number => {
+    depth = Math.max(depth, level);
+    const kids = children.get(item.id) ?? [];
+    const x = kids.length ? kids.map((kid) => walk(kid, level + 1)).reduce((sum, value) => sum + value, 0) / kids.length : column++;
+    nodes.push({ ...item, x, depth: level });
+    return x;
+  };
+  (children.get(null) ?? []).forEach((root) => walk(root, 0));
+  return { nodes, columns: Math.max(column, 1), depth };
+}
 export type TreeStep = StepBase & { nodes: LaidNode[]; columns: number; depth: number; tape: number[]; aside: string };
 
 export function distinctKeys(n: number, rand: () => number, max = 99) {

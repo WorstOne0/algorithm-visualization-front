@@ -74,7 +74,7 @@ export function drawTreeStep(ctx: Ctx, w: number, h: number, s: TreeStep, progre
     ctx.fillStyle = !coloured && (node.mark === "cur" || node.mark === "done" || node.mark === "pivot") ? "#0B0E17" : "#ffffff";
     ctx.font = monoFont(r >= 12 ? 11 : 9.5);
     ctx.textAlign = "center";
-    ctx.fillText(String(node.key), x, y + 3.5);
+    ctx.fillText(node.text ?? String(node.key), x, y + 3.5);
     if (node.label === undefined) return;
     ctx.fillStyle = accent && !coloured ? accent : COLORS.text;
     ctx.font = monoFont(9.5);

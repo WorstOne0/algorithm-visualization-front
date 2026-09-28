@@ -23,6 +23,7 @@ import { recordBst } from "./trees/record_bst";
 import { recordBTree } from "./trees/record_btree";
 import { recordRedBlack } from "./trees/record_red_black";
 import { recordTraversals } from "./trees/record_traversals";
+import { recordFenwick, recordSegmentTree, recordTreap, recordTrie } from "./trees/record_trees_more";
 
 // One recorder per algorithm page; the player calls it with the size and the seed from the URL.
 export const RECORDERS: Record<AlgorithmId, Recorder> = {
@@ -64,6 +65,10 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   redBlack: recordRedBlack,
   btree: recordBTree,
   binaryHeap: recordBinaryHeap,
+  trie: recordTrie,
+  segmentTree: recordSegmentTree,
+  fenwick: recordFenwick,
+  treap: recordTreap,
   bfs: gridRecorder("bfs"),
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),

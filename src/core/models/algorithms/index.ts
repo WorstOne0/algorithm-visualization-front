@@ -11,10 +11,11 @@ import { SORTING } from "./sorting";
 import { SORTING_MORE } from "./sorting_more";
 import type { AlgorithmSpec } from "./spec";
 import { TREES } from "./trees";
+import { TREES_MORE } from "./trees_more";
 
 export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
 
-const SPECS = { ...SORTING, ...SORTING_MORE, ...SEARCHING, ...SEARCHING_MORE, ...PATHFINDING, ...PATHFINDING_MORE, ...ROADS, ...GRAPHS, ...GRAPHS_MORE, ...TREES, ...GAMEAI };
+const SPECS = { ...SORTING, ...SORTING_MORE, ...SEARCHING, ...SEARCHING_MORE, ...PATHFINDING, ...PATHFINDING_MORE, ...ROADS, ...GRAPHS, ...GRAPHS_MORE, ...TREES, ...TREES_MORE, ...GAMEAI };
 
 export type AlgorithmId = keyof typeof SPECS;
 
