@@ -4,13 +4,15 @@ import { GRAPHS } from "./graphs";
 import { PATHFINDING } from "./pathfinding";
 import { ROADS } from "./roads";
 import { SEARCHING } from "./searching";
+import { SEARCHING_MORE } from "./searching_more";
 import { SORTING } from "./sorting";
+import { SORTING_MORE } from "./sorting_more";
 import type { AlgorithmSpec } from "./spec";
 import { TREES } from "./trees";
 
 export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
 
-const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...ROADS, ...GRAPHS, ...TREES, ...GAMEAI };
+const SPECS = { ...SORTING, ...SORTING_MORE, ...SEARCHING, ...SEARCHING_MORE, ...PATHFINDING, ...ROADS, ...GRAPHS, ...TREES, ...GAMEAI };
 
 export type AlgorithmId = keyof typeof SPECS;
 

@@ -70,8 +70,9 @@ export function drawSearch(ctx: Ctx, w: number, h: number, s: SearchState, { gap
     const x = k * (bw + gap);
     const y = h - pad - bh;
     const inRange = k >= s.lo && k <= s.hi;
-    const isMarked = k === s.mid || k === s.target;
-    ctx.fillStyle = s.found && k === s.mid ? COLORS.green : k === s.mid ? COLORS.primary : k === s.target ? COLORS.violet : inRange ? COLORS.def : COLORS.vis;
+    const isProbe = k === s.mid || k === s.mid2;
+    const isMarked = isProbe || k === s.target;
+    ctx.fillStyle = s.found && k === s.mid ? COLORS.green : isProbe ? COLORS.primary : k === s.target ? COLORS.violet : inRange ? COLORS.def : COLORS.vis;
     ctx.globalAlpha = inRange || isMarked ? 1 : 0.45;
     ctx.beginPath();
     ctx.roundRect(x, y, bw, bh, indices ? 2 : 1);

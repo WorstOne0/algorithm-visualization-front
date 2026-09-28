@@ -6,11 +6,13 @@ import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, rec
 import { gridRecorder } from "./pathfinding/record_grid";
 import { roadRecorder } from "./pathfinding/record_road";
 import type { Recorder } from "./recording";
+import { recordExponential, recordInterpolation, recordJump, recordTernary } from "./searching/record_more";
 import { recordBinary, recordLinear } from "./searching/record_search";
 import { recordBubble } from "./sorting/record_bubble";
 import { recordHeap } from "./sorting/record_heap";
 import { recordInsertion } from "./sorting/record_insertion";
 import { recordMerge } from "./sorting/record_merge";
+import { recordCocktail, recordComb, recordGnome, recordOddEven, recordRadix, recordShell } from "./sorting/record_more";
 import { recordQuick } from "./sorting/record_quick";
 import { recordSelection } from "./sorting/record_selection";
 import { recordAvl } from "./trees/record_avl";
@@ -28,8 +30,18 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   merge: recordMerge,
   quick: recordQuick,
   heap: recordHeap,
+  cocktail: recordCocktail,
+  gnome: recordGnome,
+  comb: recordComb,
+  shell: recordShell,
+  oddeven: recordOddEven,
+  radix: recordRadix,
   linear: recordLinear,
   binary: recordBinary,
+  jump: recordJump,
+  interpolation: recordInterpolation,
+  exponential: recordExponential,
+  ternary: recordTernary,
   minimax: gameTreeRecorder(false),
   alphabeta: gameTreeRecorder(true),
   graphBfs: recordGraphBfs,
