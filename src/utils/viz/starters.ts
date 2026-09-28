@@ -24,7 +24,7 @@ export function startViz(canvas: HTMLCanvasElement, spec: VizSpec): Stop {
     }
     case "search": {
       const { n = 24, ms = 420, gap = 2 } = spec;
-      return stepper(canvas, () => binarySearch(n), (ctx, w, h, s) => drawSearch(ctx, w, h, s, gap), ms, 1600);
+      return stepper(canvas, () => binarySearch(n), (ctx, w, h, s) => drawSearch(ctx, w, h, s, { gap }), ms, 1600);
     }
     case "path": {
       const { cols = 28, rows = 14, density = 0.26, ms = 70, algo = "bfs" } = spec;

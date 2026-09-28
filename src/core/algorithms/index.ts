@@ -1,8 +1,10 @@
 // Models
 import type { AlgorithmId } from "@/core/models/algorithms";
 // Utils
+import { gameTreeRecorder } from "./gameai/record_game_tree";
 import { gridRecorder } from "./pathfinding/record_grid";
 import type { Recorder } from "./recording";
+import { recordBinary, recordLinear } from "./searching/record_search";
 import { recordBubble } from "./sorting/record_bubble";
 import { recordHeap } from "./sorting/record_heap";
 import { recordInsertion } from "./sorting/record_insertion";
@@ -18,6 +20,10 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   merge: recordMerge,
   quick: recordQuick,
   heap: recordHeap,
+  linear: recordLinear,
+  binary: recordBinary,
+  minimax: gameTreeRecorder(false),
+  alphabeta: gameTreeRecorder(true),
   bfs: gridRecorder("bfs"),
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),

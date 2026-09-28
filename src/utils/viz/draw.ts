@@ -1,5 +1,6 @@
 // Models
 import type { MinimaxState } from "@/core/algorithms/gameai/minimax";
+import type { GameTreeStep } from "@/core/algorithms/gameai/record_game_tree";
 import type { GraphState } from "@/core/algorithms/graphs/graph_bfs";
 import type { GridState } from "@/core/algorithms/pathfinding/grid_search";
 import type { SearchState } from "@/core/algorithms/searching/binary_search";
@@ -57,20 +58,77 @@ export function drawBars(ctx: Ctx, w: number, h: number, s: BarsView, { gap = 2,
   }
 }
 
-export function drawSearch(ctx: Ctx, w: number, h: number, s: SearchState, gap = 2) {
+export type SearchOptions = { gap?: number; indices?: boolean; values?: boolean };
+
+export function drawSearch(ctx: Ctx, w: number, h: number, s: SearchState, { gap = 2, indices = false, values = false }: SearchOptions = {}) {
   const n = s.a.length;
+  const pad = indices ? 16 : 0;
+  const top = values ? 14 : 0;
   const bw = (w - gap * (n - 1)) / n;
   s.a.forEach((v, k) => {
-    const bh = ((h - 4) * v) / 100;
+    const bh = Math.max(2, ((h - pad - top - 4) * v) / 100);
     const x = k * (bw + gap);
+    const y = h - pad - bh;
     const inRange = k >= s.lo && k <= s.hi;
+    const isMarked = k === s.mid || k === s.target;
     ctx.fillStyle = s.found && k === s.mid ? COLORS.green : k === s.mid ? COLORS.primary : k === s.target ? COLORS.violet : inRange ? COLORS.def : COLORS.vis;
-    ctx.globalAlpha = inRange || k === s.target ? 1 : 0.45;
+    ctx.globalAlpha = inRange || isMarked ? 1 : 0.45;
     ctx.beginPath();
-    ctx.roundRect(x, h - bh, bw, bh, 1);
+    ctx.roundRect(x, y, bw, bh, indices ? 2 : 1);
     ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.font = monoFont(9);
+    ctx.textAlign = "center";
+    if (indices && bw > 14) {
+      ctx.fillStyle = isMarked ? COLORS.act : COLORS.text;
+      ctx.fillText(String(k), x + bw / 2, h - 3);
+    }
+    if (values && bw > 18) {
+      ctx.fillStyle = COLORS.text;
+      ctx.globalAlpha = inRange || isMarked ? 1 : 0.45;
+      ctx.fillText(String(v), x + bw / 2, y - 3);
+      ctx.globalAlpha = 1;
+    }
   });
-  ctx.globalAlpha = 1;
+}
+
+// The game tree: MAX and MIN levels labelled on the left, leaf scores under the leaves, resolved values above the nodes.
+export function drawGameTree(ctx: Ctx, w: number, h: number, s: GameTreeStep) {
+  const { depth, leafCount } = s.tree;
+  const r = Math.max(3.5, Math.min(11, (w - 70) / leafCount / 2.8));
+  const px = (node: { x: number }) => 48 + node.x * (w - 70);
+  const py = (node: { d: number }) => 26 + node.d * ((h - 62) / Math.max(1, depth));
+  ctx.font = monoFont(9);
+  ctx.textAlign = "left";
+  for (let d = 0; d <= depth; d++) {
+    ctx.fillStyle = COLORS.text;
+    ctx.fillText(d % 2 === 0 ? "MAX" : "MIN", 6, py({ d }) + 3);
+  }
+  ctx.lineWidth = 1.1;
+  s.tree.nodes.forEach((node) =>
+    node.kids.forEach((kid) => {
+      ctx.strokeStyle = s.pruned.has(kid.id) ? "rgba(58,67,99,.35)" : s.best.has(kid.id) && s.best.has(node.id) ? COLORS.violet : s.visited.has(kid.id) ? COLORS.primary : COLORS.edge;
+      ctx.lineWidth = s.best.has(kid.id) && s.best.has(node.id) ? 2 : 1.1;
+      ctx.beginPath();
+      ctx.moveTo(px(node), py(node));
+      ctx.lineTo(px(kid), py(kid));
+      ctx.stroke();
+    })
+  );
+  ctx.textAlign = "center";
+  s.tree.nodes.forEach((node) => {
+    const isCurrent = node.id === s.cur;
+    const isPruned = s.pruned.has(node.id);
+    ctx.fillStyle = isPruned ? "rgba(58,67,99,.5)" : isCurrent ? COLORS.act : s.best.has(node.id) ? COLORS.violet : s.visited.has(node.id) ? COLORS.green : COLORS.def;
+    ctx.beginPath();
+    ctx.arc(px(node), py(node), isCurrent ? r + 2 : r, 0, Math.PI * 2);
+    ctx.fill();
+    const value = node.leaf !== null ? node.leaf : s.values.get(node.id);
+    if (value === undefined || r < 4.5) return;
+    ctx.font = monoFont(Math.max(8, Math.min(11, r)));
+    ctx.fillStyle = isPruned ? "rgba(140,147,168,.4)" : isCurrent ? COLORS.act : COLORS.text;
+    ctx.fillText(String(value), px(node), node.leaf !== null ? py(node) + r + 10 : py(node) - r - 4);
+  });
 }
 
 export function drawGrid(ctx: Ctx, w: number, h: number, s: GridState, { showCosts = false }: { showCosts?: boolean } = {}) {

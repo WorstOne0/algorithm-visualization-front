@@ -178,8 +178,8 @@ export const ALGORITHMS_BY_FAMILY: Record<FamilyId, AlgorithmRow[]> = {
     { viz: "astar", name: "Theta*", avg: "O(E log V)", worst: "O(E log V)", space: "O(V)", desc: { en: "Any-angle A*: parents can be any visible cell, so paths are not grid-bound.", pt: "A* de qualquer ângulo: pais podem ser qualquer célula visível, caminhos fora da grade." } },
   ],
   searching: [
-    { viz: "s", name: "Linear search", avg: "O(n)", worst: "O(n)", space: "O(1)", desc: { en: "Look at every element until it matches.", pt: "Olha cada elemento até bater." } },
-    { viz: "s", name: "Binary search", avg: "O(log n)", worst: "O(log n)", space: "O(1)", desc: { en: "Halve the sorted range around the middle element.", pt: "Divide a faixa ordenada ao meio em torno do elemento do meio." } },
+    { viz: "s", name: "Linear search", avg: "O(n)", worst: "O(n)", space: "O(1)", desc: { en: "Look at every element until it matches.", pt: "Olha cada elemento até bater." }, page: "linear" },
+    { viz: "s", name: "Binary search", avg: "O(log n)", worst: "O(log n)", space: "O(1)", desc: { en: "Halve the sorted range around the middle element.", pt: "Divide a faixa ordenada ao meio em torno do elemento do meio." }, page: "binary" },
     { viz: "s", name: "Jump search", avg: "O(√n)", worst: "O(√n)", space: "O(1)", desc: { en: "Jump ahead in blocks, then scan back linearly.", pt: "Salta em blocos, depois varre para trás linearmente." } },
     { viz: "s", name: "Interpolation search", avg: "O(log log n)", worst: "O(n)", space: "O(1)", desc: { en: "Guess the position from the value, like a phone book.", pt: "Chuta a posição pelo valor, como numa lista telefônica." } },
     { viz: "s", name: "Exponential search", avg: "O(log n)", worst: "O(log n)", space: "O(1)", desc: { en: "Double the bound until you pass the target, then binary search.", pt: "Dobra o limite até passar do alvo, depois busca binária." } },
@@ -211,8 +211,8 @@ export const ALGORITHMS_BY_FAMILY: Record<FamilyId, AlgorithmRow[]> = {
     { viz: "t", name: "Treap", avg: "O(log n)", worst: "O(n)", space: "O(n)", desc: { en: "BST by key, heap by random priority.", pt: "BST pela chave, heap por prioridade aleatória." } },
   ],
   gameai: [
-    { viz: "m", name: "Minimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Assume the opponent plays perfectly; pick the move with the best worst case.", pt: "Assume que o oponente joga perfeito; escolhe a jogada com o melhor pior caso." } },
-    { viz: "m", name: "Alpha-beta pruning", avg: "O(b^(d/2))", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax that skips branches which cannot change the answer.", pt: "Minimax que pula ramos que não podem mudar a resposta." } },
+    { viz: "m", name: "Minimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Assume the opponent plays perfectly; pick the move with the best worst case.", pt: "Assume que o oponente joga perfeito; escolhe a jogada com o melhor pior caso." }, page: "minimax" },
+    { viz: "m", name: "Alpha-beta pruning", avg: "O(b^(d/2))", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax that skips branches which cannot change the answer.", pt: "Minimax que pula ramos que não podem mudar a resposta." }, page: "alphabeta" },
     { viz: "m", name: "Iterative deepening", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Search depth 1, 2, 3… until time runs out.", pt: "Busca profundidade 1, 2, 3… até acabar o tempo." } },
     { viz: "m", name: "Expectimax", avg: "O(b^d)", worst: "O(b^d)", space: "O(d)", desc: { en: "Minimax with chance nodes for dice and cards.", pt: "Minimax com nós de sorte para dados e cartas." } },
     { viz: "m", name: "Monte Carlo tree search", avg: "—", worst: "—", space: "O(n)", desc: { en: "Random playouts guide which branches to grow.", pt: "Partidas aleatórias guiam quais ramos crescer." } },
