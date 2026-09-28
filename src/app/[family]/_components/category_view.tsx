@@ -7,7 +7,7 @@ import { useLanguageController } from "@/core/controllers";
 // Models
 import { ALGORITHMS, ALGORITHMS_BY_FAMILY, algorithmPath, FAMILIES, localize, TRANSLATIONS, type FamilyId } from "@/core/models";
 // Components
-import { VizCanvas } from "@/components";
+import { AmbientBand, VizCanvas } from "@/components";
 import AlgorithmCard from "./algorithm_card";
 // Icons
 import { BackIcon, PlayIcon } from "@/components/icons";
@@ -40,7 +40,9 @@ export default function CategoryView({ familyId }: { familyId: FamilyId }) {
   };
 
   return (
-    <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1440px] flex-col gap-[2rem] px-[2.8rem] pt-[2rem] pb-[5.6rem]">
+    <>
+      <AmbientBand family={familyId} />
+      <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1920px] flex-col gap-[2rem] px-[2.8rem] pt-[2rem] pb-[5.6rem]">
       <div className="card flex items-center gap-[1.2rem] rounded-[1rem] px-[1.6rem] py-[1.2rem]">
         <Link href="/" title={t.home} className="icon-btn flex-none rounded-[0.7rem]">
           <BackIcon />
@@ -117,6 +119,7 @@ export default function CategoryView({ familyId }: { familyId: FamilyId }) {
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

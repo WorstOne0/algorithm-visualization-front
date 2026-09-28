@@ -7,7 +7,7 @@ import { useLanguageController } from "@/core/controllers";
 // Models
 import { FAMILIES, TRANSLATIONS, type FamilyId } from "@/core/models";
 // Components
-import { VizCanvas } from "@/components";
+import { AmbientBand } from "@/components";
 import FamilyCard from "./_components/family_card";
 import Hero from "./_components/hero";
 import PreviewWell from "./_components/preview_well";
@@ -21,11 +21,8 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] overflow-hidden">
-        <VizCanvas spec={{ starter: "city", cell: 30, speed: 90, alpha: 0.7 }} />
-        <div className="city-fade absolute inset-0" />
-      </div>
-      <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1440px] flex-col gap-[3.6rem] px-[2.8rem] pt-[3.2rem] pb-[5.6rem]">
+      <AmbientBand family={hoveredFamily} />
+      <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1920px] flex-col gap-[3.6rem] px-[2.8rem] pt-[3.2rem] pb-[5.6rem]">
         <section className="grid grid-cols-[minmax(320px,5fr)_minmax(0,7fr)] items-stretch gap-[2.8rem]">
           <Hero />
           <PreviewWell family={family} />

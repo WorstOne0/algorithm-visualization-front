@@ -1,6 +1,7 @@
 // Models
 import type { PathAlgo } from "@/core/algorithms/pathfinding/grid_search";
 import type { SortId } from "@/core/algorithms/sorting/sorts";
+import type { FamilyId } from "./families";
 
 // A named colour of the canvas palette (utils/viz/canvas.ts); the models point at it by key.
 export type VizKey = "primary" | "swap" | "violet" | "green" | "neg" | "vis" | "def" | "act" | "text";
@@ -13,4 +14,5 @@ export type VizSpec =
   | { starter: "graph"; n?: number; ms?: number; r?: number }
   | { starter: "tree"; n?: number; ms?: number; r?: number }
   | { starter: "minimax"; branch?: number; depth?: number; ms?: number; r?: number }
-  | { starter: "city"; cell?: number; speed?: number; alpha?: number };
+  // The faint scene behind the home hero and a category header (utils/viz/ambient.ts).
+  | { starter: "ambient"; family: FamilyId; alpha?: number };

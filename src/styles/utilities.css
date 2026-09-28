@@ -11,8 +11,8 @@
   background-image: repeating-linear-gradient(0deg, transparent 0 31px, rgba(255, 255, 255, 0.035) 31px 32px);
 }
 
-/* Fades the home's city grid into the page on the left and at the bottom. */
-@utility city-fade {
+/* Fades the ambient scene into the page on the left and at the bottom. */
+@utility ambient-fade {
   background:
     linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 38%, transparent 70%),
     linear-gradient(180deg, transparent 0%, transparent 35%, var(--bg) 100%);

@@ -125,7 +125,7 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   const meta = algorithmId === "quick" ? `n = ${size} · seed ${currentSeed} · ${steps.length} ${t.steps}` : `${MAZE_COLS}×${MAZE_ROWS} · ${size}% ${t.walls} · seed ${currentSeed} · ${steps.length} ${t.steps}`;
 
   return (
-    <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1440px] flex-col">
+    <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1920px] flex-col">
       <div className="flex min-h-[calc(100vh-5.2rem)] flex-col gap-[1.2rem] px-[2.8rem] pt-[1.6rem] pb-[2rem]">
         <div className="card flex items-center gap-[1.2rem] rounded-[1rem] px-[1.6rem] py-[1rem]">
           <Link href={`/${family.id}`} title={localize(family.name, lang)} className="icon-btn flex-none rounded-[0.7rem]">
