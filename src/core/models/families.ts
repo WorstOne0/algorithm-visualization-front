@@ -77,7 +77,7 @@ export const FAMILIES: Family[] = [
     flagship: "roadAstar",
     flagshipViz: { starter: "map" },
     flagshipMeta: "A* · Cascavel · OpenStreetMap",
-    legend: [["vis", { en: "closed", pt: "fechado" }], ["primary", { en: "open", pt: "aberto" }], ["violet", { en: "path", pt: "caminho" }], ["green", { en: "start / goal", pt: "início / destino" }]],
+    legend: [["primary", { en: "explored streets · open", pt: "ruas exploradas · aberto" }], ["act", { en: "current", pt: "atual" }], ["violet", { en: "route", pt: "rota" }], ["green", { en: "start / goal", pt: "início / destino" }]],
     preview: { starter: "map" },
     card: { starter: "path" },
   },
