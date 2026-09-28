@@ -33,10 +33,10 @@ export const recordLinear: Recorder = (n, seed) => {
     comparisons++;
     if (a[i] === value) {
       result = i;
-      push(3, { en: `a[${i}] = ${a[i]} is the target. Return ${i} after ${comparisons} comparisons.`, pt: `a[${i}] = ${a[i]} é o alvo. Retorna ${i} depois de ${comparisons} comparações.` }, i, true);
+      push(3, { en: `array[${i}] = ${a[i]} is the target. Return ${i} after ${comparisons} comparisons.`, pt: `array[${i}] = ${a[i]} é o alvo. Retorna ${i} depois de ${comparisons} comparações.` }, i, true);
       break;
     }
-    push(3, { en: `a[${i}] = ${a[i]} is not ${value}. Move on.`, pt: `a[${i}] = ${a[i]} não é ${value}. Segue.` }, i, false);
+    push(3, { en: `array[${i}] = ${a[i]} is not ${value}. Move on.`, pt: `array[${i}] = ${a[i]} não é ${value}. Segue.` }, i, false);
   }
   steps.push({ ...steps[steps.length - 1], line: 6, note: { en: `Done. ${comparisons} of ${n} elements were checked.`, pt: `Pronto. ${comparisons} de ${n} elementos foram verificados.` } });
   return { steps, meta: { en: `${meta.en} · ${steps.length} steps`, pt: `${meta.pt} · ${steps.length} passos` } };
@@ -56,11 +56,11 @@ export const recordBinary: Recorder = (n, seed) => {
   push(2, { en: `Look for ${value}. The whole range [0, ${n - 1}] is possible.`, pt: `Procura ${value}. A faixa inteira [0, ${n - 1}] é possível.` }, -1, false);
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    push(4, { en: `Probe the middle of [${lo}, ${hi}]: mid = ${mid}, a[${mid}] = ${a[mid]}.`, pt: `Sonda o meio de [${lo}, ${hi}]: mid = ${mid}, a[${mid}] = ${a[mid]}.` }, mid, false);
+    push(4, { en: `Probe the middle of [${lo}, ${hi}]: middle = ${mid}, array[${mid}] = ${a[mid]}.`, pt: `Sonda o meio de [${lo}, ${hi}]: middle = ${mid}, array[${mid}] = ${a[mid]}.` }, mid, false);
     comparisons++;
     if (a[mid] === value) {
       result = mid;
-      push(5, { en: `a[${mid}] = ${value} is the target. Return ${mid} after ${comparisons} comparisons.`, pt: `a[${mid}] = ${value} é o alvo. Retorna ${mid} depois de ${comparisons} comparações.` }, mid, true);
+      push(5, { en: `array[${mid}] = ${value} is the target. Return ${mid} after ${comparisons} comparisons.`, pt: `array[${mid}] = ${value} é o alvo. Retorna ${mid} depois de ${comparisons} comparações.` }, mid, true);
       break;
     }
     if (a[mid] < value) {

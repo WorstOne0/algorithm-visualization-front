@@ -13,18 +13,18 @@ export const recordInsertion: Recorder = (n, seed) => {
   const counters = () => ({ comparisons, shifts, key, prefix, prefixUnit: `/ ${n}`, gap });
 
   done.add(0);
-  push(1, { en: `Start: a[0] = ${a[0]} alone is a sorted prefix of length 1.`, pt: `Início: a[0] = ${a[0]} sozinho é um prefixo ordenado de tamanho 1.` }, counters());
+  push(1, { en: `Start: array[0] = ${a[0]} alone is a sorted prefix of length 1.`, pt: `Início: array[0] = ${a[0]} sozinho é um prefixo ordenado de tamanho 1.` }, counters());
   for (let i = 1; i < n; i++) {
     key = a[i];
     let j = i - 1;
     gap = i;
-    push(3, { en: `Lift the key a[${i}] = ${key} out. The prefix [0, ${i - 1}] is sorted.`, pt: `Levanta a chave a[${i}] = ${key}. O prefixo [0, ${i - 1}] está ordenado.` }, counters(), { held: { index: i, value: key }, range: [0, i] });
+    push(3, { en: `Lift the key array[${i}] = ${key} out. The prefix [0, ${i - 1}] is sorted.`, pt: `Levanta a chave array[${i}] = ${key}. O prefixo [0, ${i - 1}] está ordenado.` }, counters(), { held: { index: i, value: key }, range: [0, i] });
     while (j >= 0) {
       comparisons++;
       const isBigger = a[j] > key;
       push(5, {
-        en: `Compare a[${j}] = ${a[j]} with the key ${key}. ${isBigger ? "Bigger: shift it right." : "Not bigger: the key goes after it."}`,
-        pt: `Compara a[${j}] = ${a[j]} com a chave ${key}. ${isBigger ? "Maior: desloca para a direita." : "Não é maior: a chave vai depois dele."}`,
+        en: `Compare array[${j}] = ${a[j]} with the key ${key}. ${isBigger ? "Bigger: shift it right." : "Not bigger: the key goes after it."}`,
+        pt: `Compara array[${j}] = ${a[j]} com a chave ${key}. ${isBigger ? "Maior: desloca para a direita." : "Não é maior: a chave vai depois dele."}`,
       }, counters(), { i: j, held: { index: j + 1, value: key }, range: [0, i] });
       if (!isBigger) break;
       a[j + 1] = a[j];

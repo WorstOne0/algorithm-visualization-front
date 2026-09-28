@@ -16,13 +16,13 @@ export const recordSelection: Recorder = (n, seed) => {
     pass++;
     let min = i;
     minimum = a[i];
-    push(3, { en: `Slot ${i}: the candidate minimum is a[${i}] = ${a[i]}.`, pt: `Vaga ${i}: o candidato a mínimo é a[${i}] = ${a[i]}.` }, counters(), { pivot: i, range: [i, n - 1] });
+    push(3, { en: `Slot ${i}: the candidate minimum is array[${i}] = ${a[i]}.`, pt: `Vaga ${i}: o candidato a mínimo é array[${i}] = ${a[i]}.` }, counters(), { pivot: i, range: [i, n - 1] });
     for (let j = i + 1; j < n; j++) {
       comparisons++;
       const isSmaller = a[j] < a[min];
       push(5, {
-        en: `Compare a[${j}] = ${a[j]} with the minimum a[${min}] = ${a[min]}. ${isSmaller ? "New minimum." : "Not smaller."}`,
-        pt: `Compara a[${j}] = ${a[j]} com o mínimo a[${min}] = ${a[min]}. ${isSmaller ? "Novo mínimo." : "Não é menor."}`,
+        en: `Compare array[${j}] = ${a[j]} with the minimum array[${min}] = ${a[min]}. ${isSmaller ? "New minimum." : "Not smaller."}`,
+        pt: `Compara array[${j}] = ${a[j]} com o mínimo array[${min}] = ${a[min]}. ${isSmaller ? "Novo mínimo." : "Não é menor."}`,
       }, counters(), { pivot: i, i: j, j: min, range: [i, n - 1] });
       if (!isSmaller) continue;
       min = j;
@@ -32,11 +32,11 @@ export const recordSelection: Recorder = (n, seed) => {
       swapAt(a, i, min);
       swaps++;
       done.add(i);
-      push(7, { en: `Swap a[${i}] with a[${min}]: ${a[i]} is now in place.`, pt: `Troca a[${i}] com a[${min}]: ${a[i]} está no lugar.` }, counters(), { pivot: i, i, j: min, swap: true, range: [i, n - 1] });
+      push(7, { en: `Swap array[${i}] with array[${min}]: ${a[i]} is now in place.`, pt: `Troca array[${i}] com array[${min}]: ${a[i]} está no lugar.` }, counters(), { pivot: i, i, j: min, swap: true, range: [i, n - 1] });
       continue;
     }
     done.add(i);
-    push(7, { en: `a[${i}] = ${a[i]} was already the minimum: no swap.`, pt: `a[${i}] = ${a[i]} já era o mínimo: sem troca.` }, counters(), { pivot: i, range: [i, n - 1] });
+    push(7, { en: `array[${i}] = ${a[i]} was already the minimum: no swap.`, pt: `array[${i}] = ${a[i]} já era o mínimo: sem troca.` }, counters(), { pivot: i, range: [i, n - 1] });
   }
   finish();
   minimum = "—";

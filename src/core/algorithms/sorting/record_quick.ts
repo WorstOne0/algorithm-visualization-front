@@ -28,20 +28,20 @@ export const recordQuick: Recorder = (n, seed) => {
     }
     const pivot = a[hi];
     let k = lo;
-    push(3, { en: `Pivot is the last element of [${lo}, ${hi}]: a[${hi}] = ${pivot}.`, pt: `O pivô é o último elemento de [${lo}, ${hi}]: a[${hi}] = ${pivot}.` }, counters(), { pivot: hi, range: [lo, hi] });
+    push(3, { en: `Pivot is the last element of [${lo}, ${hi}]: array[${hi}] = ${pivot}.`, pt: `O pivô é o último elemento de [${lo}, ${hi}]: array[${hi}] = ${pivot}.` }, counters(), { pivot: hi, range: [lo, hi] });
     for (let j = lo; j < hi; j++) {
       comparisons++;
       const isSmaller = a[j] < pivot;
       push(6, {
-        en: `Compare a[${j}] = ${a[j]} with the pivot ${pivot}. ${isSmaller ? "Smaller, so it moves left of the frontier." : "Not smaller, so it stays right."}`,
-        pt: `Compara a[${j}] = ${a[j]} com o pivô ${pivot}. ${isSmaller ? "Menor, então vai para a esquerda da fronteira." : "Não é menor, fica à direita."}`,
+        en: `Compare array[${j}] = ${a[j]} with the pivot ${pivot}. ${isSmaller ? "Smaller, so it moves left of the frontier." : "Not smaller, so it stays right."}`,
+        pt: `Compara array[${j}] = ${a[j]} com o pivô ${pivot}. ${isSmaller ? "Menor, então vai para a esquerda da fronteira." : "Não é menor, fica à direita."}`,
       }, counters(), { i: j, pivot: hi, range: [lo, hi] });
       if (!isSmaller) continue;
       if (k !== j) {
         swapAt(a, k, j);
         swaps++;
       }
-      push(7, { en: `Swap a[${k}] and a[${j}]. The frontier i moves to ${k + 1}.`, pt: `Troca a[${k}] com a[${j}]. A fronteira i avança para ${k + 1}.` }, counters(), { i: k, j, pivot: hi, swap: true, range: [lo, hi] });
+      push(7, { en: `Swap array[${k}] and array[${j}]. The frontier i moves to ${k + 1}.`, pt: `Troca array[${k}] com array[${j}]. A fronteira i avança para ${k + 1}.` }, counters(), { i: k, j, pivot: hi, swap: true, range: [lo, hi] });
       k++;
     }
     swapAt(a, k, hi);

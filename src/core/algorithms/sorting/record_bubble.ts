@@ -19,8 +19,8 @@ export const recordBubble: Recorder = (n, seed) => {
       comparisons++;
       const isOut = a[j] > a[j + 1];
       push(5, {
-        en: `Compare a[${j}] = ${a[j]} with a[${j + 1}] = ${a[j + 1]}. ${isOut ? "Out of order." : "In order, move on."}`,
-        pt: `Compara a[${j}] = ${a[j]} com a[${j + 1}] = ${a[j + 1]}. ${isOut ? "Fora de ordem." : "Em ordem, segue."}`,
+        en: `Compare array[${j}] = ${a[j]} with array[${j + 1}] = ${a[j + 1]}. ${isOut ? "Out of order." : "In order, move on."}`,
+        pt: `Compara array[${j}] = ${a[j]} com array[${j + 1}] = ${a[j + 1]}. ${isOut ? "Fora de ordem." : "Em ordem, segue."}`,
       }, counters(), { i: j, j: j + 1, range: [0, end] });
       if (!isOut) continue;
       swapAt(a, j, j + 1);
@@ -34,7 +34,7 @@ export const recordBubble: Recorder = (n, seed) => {
       push(10, { en: `No swap in this pass: the array is sorted. Early exit after ${pass} passes.`, pt: `Nenhuma troca nesta passada: o vetor está ordenado. Saída antecipada depois de ${pass} passadas.` }, counters());
       break;
     }
-    push(10, { en: `Pass ${pass} done: a[${end}] = ${a[end]} is final.`, pt: `Passada ${pass} concluída: a[${end}] = ${a[end]} é definitivo.` }, counters());
+    push(10, { en: `Pass ${pass} done: array[${end}] = ${a[end]} is final.`, pt: `Passada ${pass} concluída: array[${end}] = ${a[end]} é definitivo.` }, counters());
   }
   finish();
   push(12, { en: `Done. ${comparisons} comparisons and ${swaps} swaps in ${pass} passes for n = ${n}.`, pt: `Pronto. ${comparisons} comparações e ${swaps} trocas em ${pass} passadas para n = ${n}.` }, counters());

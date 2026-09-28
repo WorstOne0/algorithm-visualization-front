@@ -21,21 +21,21 @@ export const recordHeap: Recorder = (n, seed) => {
       let m = i;
       if (l < size) {
         comparisons++;
-        push(13, { en: `Compare the left child a[${l}] = ${a[l]} with a[${m}] = ${a[m]}.`, pt: `Compara o filho esquerdo a[${l}] = ${a[l]} com a[${m}] = ${a[m]}.` }, counters(), { i: l, j: m, pivot: i, range: heapRange() });
+        push(13, { en: `Compare the left child array[${l}] = ${a[l]} with array[${m}] = ${a[m]}.`, pt: `Compara o filho esquerdo array[${l}] = ${a[l]} com array[${m}] = ${a[m]}.` }, counters(), { i: l, j: m, pivot: i, range: heapRange() });
         if (a[l] > a[m]) m = l;
       }
       if (r < size) {
         comparisons++;
-        push(14, { en: `Compare the right child a[${r}] = ${a[r]} with a[${m}] = ${a[m]}.`, pt: `Compara o filho direito a[${r}] = ${a[r]} com a[${m}] = ${a[m]}.` }, counters(), { i: r, j: m, pivot: i, range: heapRange() });
+        push(14, { en: `Compare the right child array[${r}] = ${a[r]} with array[${m}] = ${a[m]}.`, pt: `Compara o filho direito array[${r}] = ${a[r]} com array[${m}] = ${a[m]}.` }, counters(), { i: r, j: m, pivot: i, range: heapRange() });
         if (a[r] > a[m]) m = r;
       }
       if (m === i) {
-        push(15, { en: `a[${i}] = ${a[i]} is at least as large as its children: the heap holds here.`, pt: `a[${i}] = ${a[i]} é pelo menos tão grande quanto os filhos: o heap vale aqui.` }, counters(), { pivot: i, range: heapRange() });
+        push(15, { en: `array[${i}] = ${a[i]} is at least as large as its children: the heap holds here.`, pt: `array[${i}] = ${a[i]} é pelo menos tão grande quanto os filhos: o heap vale aqui.` }, counters(), { pivot: i, range: heapRange() });
         return;
       }
       swapAt(a, i, m);
       swaps++;
-      push(16, { en: `Swap a[${i}] with a[${m}]: ${a[i]} moves up, ${a[m]} sinks.`, pt: `Troca a[${i}] com a[${m}]: ${a[i]} sobe, ${a[m]} desce.` }, counters(), { i, j: m, swap: true, range: heapRange() });
+      push(16, { en: `Swap array[${i}] with array[${m}]: ${a[i]} moves up, ${a[m]} sinks.`, pt: `Troca array[${i}] com array[${m}]: ${a[i]} sobe, ${a[m]} desce.` }, counters(), { i, j: m, swap: true, range: heapRange() });
       i = m;
     }
   };
@@ -49,7 +49,7 @@ export const recordHeap: Recorder = (n, seed) => {
     swaps++;
     heapSize = end;
     done.add(end);
-    push(5, { en: `Pop: swap the maximum ${a[end]} with a[${end}]. Index ${end} is final and the heap shrinks to ${end}.`, pt: `Retira: troca o máximo ${a[end]} com a[${end}]. O índice ${end} é definitivo e o heap encolhe para ${end}.` }, counters(), { i: 0, j: end, swap: true, range: heapRange() });
+    push(5, { en: `Pop: swap the maximum ${a[end]} with array[${end}]. Index ${end} is final and the heap shrinks to ${end}.`, pt: `Retira: troca o máximo ${a[end]} com array[${end}]. O índice ${end} é definitivo e o heap encolhe para ${end}.` }, counters(), { i: 0, j: end, swap: true, range: heapRange() });
     push(6, { en: `Sift the new root ${a[0]} down inside the heap of size ${end}.`, pt: `Desce a nova raiz ${a[0]} dentro do heap de tamanho ${end}.` }, counters(), { pivot: 0, range: heapRange() });
     sift(0, end);
   }

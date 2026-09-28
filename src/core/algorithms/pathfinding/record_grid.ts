@@ -48,7 +48,7 @@ export const gridRecorder = (algo: PathAlgo, mud = false): Recorder => (n, seed)
       s.line === 2
         ? { en: `Start at (${grid.s[0]}, ${grid.s[1]}), goal at (${grid.e[0]}, ${grid.e[1]}). The open set holds only the start.`, pt: `Início em (${grid.s[0]}, ${grid.s[1]}), destino em (${grid.e[0]}, ${grid.e[1]}). O conjunto aberto só tem o início.` }
         : s.line === 5
-          ? { en: `${POP[algo].en}: (${r}, ${c}), g = ${s.gmap.get(s.cur)}. It becomes closed.`, pt: `${POP[algo].pt}: (${r}, ${c}), g = ${s.gmap.get(s.cur)}. Ela vira fechada.` }
+          ? { en: `${POP[algo].en}: (${r}, ${c}), distance = ${s.gmap.get(s.cur)}. It becomes closed.`, pt: `${POP[algo].pt}: (${r}, ${c}), distance = ${s.gmap.get(s.cur)}. Ela vira fechada.` }
           : s.line === 11
             ? { en: `Look at the neighbours of (${r}, ${c}): ${RELAX[algo].en}.`, pt: `Olha os vizinhos de (${r}, ${c}): ${RELAX[algo].pt}.` }
             : s.path.length && s.path.length < goalG

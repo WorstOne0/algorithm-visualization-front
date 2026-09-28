@@ -35,20 +35,20 @@ export const recordMerge: Recorder = (n, seed) => {
       comparisons++;
       const takeLeft = a[i] <= a[j];
       push(takeLeft ? 9 : 10, {
-        en: `Compare a[${i}] = ${a[i]} with a[${j}] = ${a[j]}: take ${takeLeft ? a[i] : a[j]} into the buffer.`,
-        pt: `Compara a[${i}] = ${a[i]} com a[${j}] = ${a[j]}: leva ${takeLeft ? a[i] : a[j]} para o buffer.`,
+        en: `Compare array[${i}] = ${a[i]} with array[${j}] = ${a[j]}: take ${takeLeft ? a[i] : a[j]} into the buffer.`,
+        pt: `Compara array[${i}] = ${a[i]} com array[${j}] = ${a[j]}: leva ${takeLeft ? a[i] : a[j]} para o buffer.`,
       }, counters(), { i, j, range: [lo, hi] });
       if (takeLeft) tmp.push(a[i++]);
       else tmp.push(a[j++]);
     }
     while (i <= mid) {
       tmp.push(a[i]);
-      push(12, { en: `The right half is spent: copy a[${i}] = ${a[i]} into the buffer.`, pt: `A metade direita acabou: copia a[${i}] = ${a[i]} para o buffer.` }, counters(), { i, range: [lo, hi] });
+      push(12, { en: `The right half is spent: copy array[${i}] = ${a[i]} into the buffer.`, pt: `A metade direita acabou: copia array[${i}] = ${a[i]} para o buffer.` }, counters(), { i, range: [lo, hi] });
       i++;
     }
     while (j <= hi) {
       tmp.push(a[j]);
-      push(13, { en: `The left half is spent: copy a[${j}] = ${a[j]} into the buffer.`, pt: `A metade esquerda acabou: copia a[${j}] = ${a[j]} para o buffer.` }, counters(), { i: j, range: [lo, hi] });
+      push(13, { en: `The left half is spent: copy array[${j}] = ${a[j]} into the buffer.`, pt: `A metade esquerda acabou: copia array[${j}] = ${a[j]} para o buffer.` }, counters(), { i: j, range: [lo, hi] });
       j++;
     }
     for (let k = 0; k < tmp.length; k++) {
