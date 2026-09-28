@@ -1,0 +1,145 @@
+// Models
+import type { MinimaxState } from "@/core/algorithms/gameai/minimax";
+import type { GraphState } from "@/core/algorithms/graphs/graph_bfs";
+import type { GridState } from "@/core/algorithms/pathfinding/grid_search";
+import type { SearchState } from "@/core/algorithms/searching/binary_search";
+import type { SortState } from "@/core/algorithms/sorting/sorts";
+import type { TreeState } from "@/core/algorithms/trees/bst_insert";
+// Utils
+import { COLORS, monoFont, type Ctx } from "./canvas";
+
+export type BarsOptions = { gap?: number; radius?: number; indices?: boolean; values?: boolean };
+
+export function drawBars(ctx: Ctx, w: number, h: number, s: SortState, { gap = 2, radius = 1, indices = false, values = false }: BarsOptions = {}) {
+  const n = s.a.length;
+  const pad = indices ? 16 : 0;
+  const top = values ? 14 : 0;
+  const bw = (w - gap * (n - 1)) / n;
+  s.a.forEach((v, k) => {
+    const bh = Math.max(2, ((h - pad - top - 2) * v) / 100);
+    const x = k * (bw + gap);
+    const y = h - pad - bh;
+    ctx.fillStyle = s.done.has(k) ? COLORS.green : k === s.i || k === s.j ? (s.swap ? COLORS.swap : COLORS.primary) : k === s.pivot ? COLORS.violet : COLORS.def;
+    if (k === s.pivot && (k === s.i || k === s.j)) ctx.fillStyle = COLORS.violet;
+    ctx.beginPath();
+    ctx.roundRect(x, y, bw, bh, radius);
+    ctx.fill();
+    ctx.font = monoFont(9);
+    ctx.textAlign = "center";
+    if (indices && bw > 14) {
+      ctx.fillStyle = COLORS.text;
+      ctx.fillText(String(k), x + bw / 2, h - 3);
+    }
+    if (values && bw > 18) {
+      ctx.fillStyle = COLORS.text;
+      ctx.fillText(String(v), x + bw / 2, y - 3);
+    }
+  });
+}
+
+export function drawSearch(ctx: Ctx, w: number, h: number, s: SearchState, gap = 2) {
+  const n = s.a.length;
+  const bw = (w - gap * (n - 1)) / n;
+  s.a.forEach((v, k) => {
+    const bh = ((h - 4) * v) / 100;
+    const x = k * (bw + gap);
+    const inRange = k >= s.lo && k <= s.hi;
+    ctx.fillStyle = s.found && k === s.mid ? COLORS.green : k === s.mid ? COLORS.primary : k === s.target ? COLORS.violet : inRange ? COLORS.def : COLORS.vis;
+    ctx.globalAlpha = inRange || k === s.target ? 1 : 0.45;
+    ctx.beginPath();
+    ctx.roundRect(x, h - bh, bw, bh, 1);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+export function drawGrid(ctx: Ctx, w: number, h: number, s: GridState, { showCosts = false }: { showCosts?: boolean } = {}) {
+  const rows = s.g.length;
+  const cols = s.g[0].length;
+  const cw = w / cols;
+  const ch = h / rows;
+  const path = new Set(s.path);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const k = r * cols + c;
+      let color = s.g[r][c] ? COLORS.wall : COLORS.open;
+      if (s.visited.has(k)) color = COLORS.vis;
+      if (s.frontier.has(k)) color = COLORS.primary;
+      if (k === s.cur) color = COLORS.act;
+      if (path.has(k)) color = COLORS.violet;
+      if ((r === s.s[0] && c === s.s[1]) || (r === s.e[0] && c === s.e[1])) color = COLORS.green;
+      ctx.fillStyle = color;
+      ctx.fillRect(c * cw + 0.5, r * ch + 0.5, cw - 1, ch - 1);
+      if (!showCosts || cw <= 22 || !s.gmap.has(k) || s.g[r][c]) continue;
+      ctx.fillStyle = path.has(k) || s.frontier.has(k) ? "#fff" : COLORS.text;
+      ctx.font = monoFont(8);
+      ctx.textAlign = "center";
+      ctx.fillText(String(s.gmap.get(k)), c * cw + cw / 2, r * ch + ch / 2 + 3);
+    }
+  }
+}
+
+export function drawGraph(ctx: Ctx, w: number, h: number, s: GraphState, r: number) {
+  ctx.lineWidth = 1.2;
+  s.edges.forEach(([a, b]) => {
+    ctx.strokeStyle = s.lit.has(a + "-" + b) ? COLORS.primary : COLORS.edge;
+    ctx.beginPath();
+    ctx.moveTo(s.nodes[a].x * w, s.nodes[a].y * h);
+    ctx.lineTo(s.nodes[b].x * w, s.nodes[b].y * h);
+    ctx.stroke();
+  });
+  s.nodes.forEach((p, i) => {
+    ctx.fillStyle = s.cur.has(i) ? COLORS.violet : s.seen.has(i) ? COLORS.green : COLORS.def;
+    ctx.beginPath();
+    ctx.arc(p.x * w, p.y * h, s.cur.has(i) ? r + 1.5 : r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+export function drawTree(ctx: Ctx, w: number, h: number, s: TreeState, r: number) {
+  const cw = w / (s.count + 1);
+  const depth = Math.max(4, ...s.nodes.map((t) => t.d ?? 0)) + 1;
+  const rh = (h - 2 * r - 6) / depth;
+  const px = (t: { x?: number }) => ((t.x ?? 0) + 1) * cw;
+  const py = (t: { d?: number }) => r + 4 + (t.d ?? 0) * rh;
+  ctx.strokeStyle = COLORS.edge;
+  ctx.lineWidth = 1.2;
+  s.nodes.forEach((t) =>
+    [t.l, t.r].forEach((c) => {
+      if (!c || c.x === undefined) return;
+      ctx.beginPath();
+      ctx.moveTo(px(t), py(t));
+      ctx.lineTo(px(c), py(c));
+      ctx.stroke();
+    })
+  );
+  s.nodes.forEach((t) => {
+    if (t.x === undefined) return;
+    ctx.fillStyle = t === s.fresh ? COLORS.violet : s.hot.has(t) ? COLORS.primary : COLORS.green;
+    ctx.beginPath();
+    ctx.arc(px(t), py(t), r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+export function drawMinimax(ctx: Ctx, w: number, h: number, s: MinimaxState, r: number, depth: number) {
+  const py = (n: { d: number }) => r + 4 + n.d * ((h - 2 * r - 8) / depth);
+  const px = (n: { x: number }) => 6 + n.x * (w - 12);
+  ctx.lineWidth = 1.1;
+  s.nodes.forEach((n) =>
+    n.kids.forEach((k) => {
+      ctx.strokeStyle = s.pruned.has(k.id) ? "rgba(58,67,99,.35)" : s.best.has(k.id) && s.best.has(n.id) ? COLORS.violet : s.visited.has(k.id) ? COLORS.primary : COLORS.edge;
+      ctx.beginPath();
+      ctx.moveTo(px(n), py(n));
+      ctx.lineTo(px(k), py(k));
+      ctx.stroke();
+    })
+  );
+  s.nodes.forEach((n) => {
+    const isCurrent = s.cur !== null && s.cur.id === n.id;
+    ctx.fillStyle = s.pruned.has(n.id) ? "rgba(58,67,99,.5)" : isCurrent ? COLORS.act : s.best.has(n.id) ? COLORS.violet : s.visited.has(n.id) ? COLORS.green : COLORS.def;
+    ctx.beginPath();
+    ctx.arc(px(n), py(n), isCurrent ? r + 1.5 : r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}

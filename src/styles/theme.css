@@ -1,0 +1,34 @@
+/* Tailwind's own palette is switched off: the only colours that exist are the roles below. */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+@theme {
+  --color-*: initial;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-bg: var(--bg);
+  --color-side: var(--side);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-tint: var(--primary-tint);
+  --color-on-primary: var(--on-primary);
+  --color-violet: var(--violet);
+  --color-violet-tint: var(--violet-tint);
+  --color-swap: var(--swap);
+  --color-green: var(--green);
+  --color-amber: var(--amber);
+  --color-neg: var(--neg);
+  --color-well: var(--well);
+  --color-white: #ffffff;
+}

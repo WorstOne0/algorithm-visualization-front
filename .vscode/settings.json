@@ -1,0 +1,9 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "pnpm-lock.yaml, tsconfig.json, tsconfig.*.json, tsconfig.tsbuildinfo, next.config.*, next-env.d.ts, eslint.config.*, postcss.config.*",
+    "README.md": "CLAUDE.md",
+    ".gitignore": ".env, .env-*, .env.*"
+  }
+}

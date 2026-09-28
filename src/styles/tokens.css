@@ -1,0 +1,47 @@
+/* Roles only; markup never reads a hex. Dark is the default, light re-points the roles. Mirrors the helmet of docs/design. */
+:root {
+  --bg: #0b0e17;
+  --side: #0d111c;
+  --surface: #111624;
+  --surface-2: #161c2c;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.12);
+  --text: #e7eaf3;
+  --text-2: #b4bacb;
+  --muted: #8c93a8;
+  --faint: #5b6178;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-tint: rgba(59, 130, 246, 0.16);
+  --on-primary: #ffffff;
+  --violet: #a78bfa;
+  --violet-tint: rgba(167, 139, 250, 0.16);
+  --swap: #93c5fd;
+  --green: #4ade80;
+  --amber: #fbbf24;
+  --neg: #f87171;
+  /* The visualization wells stay dark in both themes. */
+  --well: #0b0e17;
+}
+
+:root[data-theme="light"] {
+  --bg: #f3f4f8;
+  --side: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eef0f6;
+  --line: rgba(20, 26, 50, 0.09);
+  --line-2: rgba(20, 26, 50, 0.16);
+  --text: #141a32;
+  --text-2: #3b4262;
+  --muted: #5f677f;
+  --faint: #8a91a6;
+  --primary: #0b5ecd;
+  --primary-hover: #0a4fae;
+  --primary-tint: rgba(11, 94, 205, 0.1);
+  --violet: #7c3aed;
+  --violet-tint: rgba(124, 58, 237, 0.12);
+  --swap: #60a5fa;
+  --green: #16a34a;
+  --amber: #d97706;
+  --neg: #c8251b;
+}
