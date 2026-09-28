@@ -21,14 +21,26 @@ function drawTape(ctx: Ctx, w: number, h: number, tape: number[]) {
   });
 }
 
+// Where each node was last drawn, so a new step (a rotation, an insertion) glides there over the tween.
+const lastSeen = new Map<number, { x: number; y: number }>();
+const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
+
+function tween(id: number, x: number, y: number, progress: number) {
+  const previous = lastSeen.get(id);
+  const at = previous && progress < 1 ? { x: lerp(previous.x, x, progress), y: lerp(previous.y, y, progress) } : { x, y };
+  lastSeen.set(id, at);
+  return at;
+}
+
 // Binary trees: nodes on their in-order column, red-black colours as the fill, marks as a ring on top.
-export function drawTreeStep(ctx: Ctx, w: number, h: number, s: TreeStep) {
+export function drawTreeStep(ctx: Ctx, w: number, h: number, s: TreeStep, progress = 1) {
   const footer = (s.tape.length ? 32 : 0) + (s.aside ? 16 : 0);
   const cw = (w - 24) / s.columns;
   const r = Math.max(8, Math.min(14, cw * 0.42));
   const rowH = Math.min(64, (h - footer - 2 * r - 30) / Math.max(s.depth, 1));
   const px = (x: number) => 12 + (x + 0.5) * cw;
   const py = (depth: number) => 14 + r + depth * rowH;
+  const at = new Map(s.nodes.map((node) => [node.id, tween(node.id, px(node.x), py(node.depth), progress)]));
   const byId = new Map(s.nodes.map((node) => [node.id, node]));
 
   s.nodes.forEach((node) => {
@@ -39,14 +51,13 @@ export function drawTreeStep(ctx: Ctx, w: number, h: number, s: TreeStep) {
     ctx.strokeStyle = lit ? COLORS.primary : COLORS.edge;
     ctx.lineWidth = lit ? 2 : 1.3;
     ctx.beginPath();
-    ctx.moveTo(px(parent.x), py(parent.depth));
-    ctx.lineTo(px(node.x), py(node.depth));
+    ctx.moveTo(at.get(parent.id)!.x, at.get(parent.id)!.y);
+    ctx.lineTo(at.get(node.id)!.x, at.get(node.id)!.y);
     ctx.stroke();
   });
 
   s.nodes.forEach((node) => {
-    const x = px(node.x);
-    const y = py(node.depth);
+    const { x, y } = at.get(node.id)!;
     const accent = markColor(node.mark);
     const coloured = node.red !== undefined;
     ctx.fillStyle = coloured ? (node.red ? COLORS.neg : COLORS.wall) : (accent ?? COLORS.def);
@@ -82,29 +93,30 @@ const CELL_W = 26;
 const CELL_H = 22;
 
 // B-trees: a box of key cells per node, leaves spread evenly and parents centred over their children.
-export function drawBTreeStep(ctx: Ctx, w: number, h: number, s: BTreeStep) {
+export function drawBTreeStep(ctx: Ctx, w: number, h: number, s: BTreeStep, progress = 1) {
   const rowH = Math.min(72, (h - CELL_H - 28) / Math.max(s.depth, 1));
   const px = (x: number) => 16 + x * (w - 32);
   const py = (depth: number) => 14 + depth * rowH;
-  const byId = new Map(s.nodes.map((node) => [node.id, node]));
+  // B-tree ids share the space with binary-tree ids; the offset keeps the two tweens apart.
+  const at = new Map(s.nodes.map((node) => [node.id, tween(1e6 + node.id, px(node.x), py(node.depth), progress)]));
   const boxWidth = (node: { keys: number[] }) => Math.max(node.keys.length, 1) * CELL_W;
 
   s.nodes.forEach((node) => {
     if (node.parent === null) return;
-    const parent = byId.get(node.parent);
+    const parent = at.get(node.parent);
     if (!parent) return;
     ctx.strokeStyle = node.mark ? COLORS.primary : COLORS.edge;
     ctx.lineWidth = node.mark ? 2 : 1.3;
     ctx.beginPath();
-    ctx.moveTo(px(parent.x), py(parent.depth) + CELL_H);
-    ctx.lineTo(px(node.x), py(node.depth));
+    ctx.moveTo(parent.x, parent.y + CELL_H);
+    ctx.lineTo(at.get(node.id)!.x, at.get(node.id)!.y);
     ctx.stroke();
   });
 
   s.nodes.forEach((node) => {
     const width = boxWidth(node);
-    const x0 = px(node.x) - width / 2;
-    const y0 = py(node.depth);
+    const x0 = at.get(node.id)!.x - width / 2;
+    const y0 = at.get(node.id)!.y;
     const accent = markColor(node.mark);
     ctx.fillStyle = COLORS.def;
     ctx.beginPath();

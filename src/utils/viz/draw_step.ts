@@ -16,8 +16,8 @@ import { drawGraphStep } from "./draw_graph";
 import { drawRoadStep } from "./draw_road";
 import { drawBTreeStep, drawTreeStep } from "./draw_tree";
 
-// The player's renderer: one branch per algorithm kind, drawing the recorded step as it is.
-export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, step: StepBase) {
+// The player's renderer: one branch per algorithm kind; `progress` is the tween into this step for the kinds that move.
+export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, step: StepBase, progress = 1) {
   switch (kind) {
     case "bars":
       return drawBars(ctx, w, h, step as BarsStep, { gap: 3, radius: 2, indices: true, values: true });
@@ -30,9 +30,9 @@ export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, st
     case "graph":
       return drawGraphStep(ctx, w, h, step as GraphStep);
     case "tree":
-      return drawTreeStep(ctx, w, h, step as TreeStep);
+      return drawTreeStep(ctx, w, h, step as TreeStep, progress);
     case "btree":
-      return drawBTreeStep(ctx, w, h, step as BTreeStep);
+      return drawBTreeStep(ctx, w, h, step as BTreeStep, progress);
     case "gametree":
       return drawGameTree(ctx, w, h, step as GameTreeStep);
     default:

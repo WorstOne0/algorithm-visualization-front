@@ -4,10 +4,13 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Controllers
-import { useLanguageController, useRoadMapController, useRunsController, useThemeController } from "@/core/controllers";
+import { useLanguageController, useRoadMapController, useSoundController, useThemeController } from "@/core/controllers";
 import { SPEEDS, usePlayerController } from "../_controllers/player_controller";
 // Models
+import type { GraphStep } from "@/core/algorithms/graphs/graph_model";
+import { getRoadMap } from "@/core/algorithms/pathfinding/road_map";
 import { RECORDERS, type Counter } from "@/core/algorithms";
+import type { BarsStep } from "@/core/algorithms/sorting/bars_recorder";
 import { ALGORITHMS, FAMILIES, findAlgorithm, localize, TRANSLATIONS, type AlgorithmId, type Lang } from "@/core/models";
 // Components
 import { KpiTiles } from "@/components";
@@ -17,28 +20,33 @@ import Player from "./player";
 // Icons
 import { BackIcon } from "@/components/icons";
 // Utils
-import { drawStep, setVizTheme, type Ctx } from "@/utils/viz";
+import { blip } from "@/utils/sound";
+import { drawStep, graphNodeAt, moveGraphNode, roadNodeAt, setVizTheme, type Ctx } from "@/utils/viz";
 
 const counterText = (value: Counter | undefined, lang: Lang) => (value === undefined ? "" : typeof value === "object" ? localize(value, lang) : String(value));
 
 export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmId }) {
   const lang = useLanguageController((state) => state.lang);
   const theme = useThemeController((state) => state.theme);
+  const sound = useSoundController((state) => state.sound);
   const loadedAlgorithm = usePlayerController((state) => state.algorithm);
   const idx = usePlayerController((state) => state.idx);
   const playing = usePlayerController((state) => state.playing);
   const speed = usePlayerController((state) => state.speed);
   const n = usePlayerController((state) => state.n);
   const seed = usePlayerController((state) => state.seed);
+  const route = usePlayerController((state) => state.route);
   const load = usePlayerController((state) => state.load);
   const tick = usePlayerController((state) => state.tick);
   const seek = usePlayerController((state) => state.seek);
   const togglePlay = usePlayerController((state) => state.togglePlay);
+  const setRoute = usePlayerController((state) => state.setRoute);
   const mapStatus = useRoadMapController((state) => state.status);
   const loadMap = useRoadMapController((state) => state.load);
-  const addRun = useRunsController((state) => state.addRun);
   const [isCopied, setIsCopied] = useState(false);
-  const recordedRef = useRef<string | null>(null);
+  // Dragging a graph node mutates the shared graph in place; the counter forces a repaint.
+  const [dragTick, setDragTick] = useState(0);
+  const draggingRef = useRef(-1);
 
   const t = TRANSLATIONS[lang];
   const algorithm = ALGORITHMS[algorithmId];
@@ -47,11 +55,12 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   const isLoaded = loadedAlgorithm === algorithmId;
   const size = isLoaded ? n : algorithm.defaultN;
   const currentSeed = isLoaded ? seed : 7;
+  const currentRoute = isLoaded ? route : null;
   // The real-map pages record only once the street map has been fetched; before that the recorder yields one loading step.
   const needsMap = algorithm.kind === "map";
   const mapReady = !needsMap || mapStatus === "ready";
 
-  const recording = useMemo(() => RECORDERS[algorithmId](mapReady ? size : 0, currentSeed), [algorithmId, size, currentSeed, mapReady]);
+  const recording = useMemo(() => RECORDERS[algorithmId](mapReady ? size : 0, currentSeed, { route: currentRoute }), [algorithmId, size, currentSeed, currentRoute, mapReady]);
   const steps = recording.steps;
   const last = steps.length - 1;
   const stepIdx = Math.min(idx, last);
@@ -62,20 +71,13 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
     if (needsMap) loadMap();
   }, [needsMap, loadMap]);
 
-  // A playback that reaches its last step is a run for the home dashboard, once per input.
-  useEffect(() => {
-    if (!isLoaded || !mapReady || last <= 0 || stepIdx !== last) return;
-    const key = `${algorithmId}:${size}:${currentSeed}`;
-    if (recordedRef.current === key) return;
-    recordedRef.current = key;
-    addRun({ algorithm: algorithmId, n: size, seed: currentSeed, steps: last + 1, at: new Date().toISOString() });
-  }, [isLoaded, mapReady, last, stepIdx, algorithmId, size, currentSeed, addRun]);
-
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const queryN = Number(query.get("n"));
     const querySeed = Number(query.get("seed"));
-    load(algorithmId, queryN >= algorithm.minN && queryN <= algorithm.maxN ? queryN : algorithm.defaultN, querySeed > 0 ? querySeed : 7);
+    const from = Number(query.get("from"));
+    const to = Number(query.get("to"));
+    load(algorithmId, queryN >= algorithm.minN && queryN <= algorithm.maxN ? queryN : algorithm.defaultN, querySeed > 0 ? querySeed : 7, query.has("from") && query.has("to") ? { from, to } : null);
   }, [algorithmId, algorithm, load]);
 
   useEffect(() => {
@@ -83,14 +85,28 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
     const url = new URL(window.location.href);
     url.searchParams.set("n", String(size));
     url.searchParams.set("seed", String(currentSeed));
+    url.searchParams.delete("from");
+    url.searchParams.delete("to");
+    if (currentRoute && currentRoute.to !== null) {
+      url.searchParams.set("from", String(currentRoute.from));
+      url.searchParams.set("to", String(currentRoute.to));
+    }
     window.history.replaceState(null, "", url);
-  }, [isLoaded, size, currentSeed]);
+  }, [isLoaded, size, currentSeed, currentRoute]);
 
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(() => tick(last), algorithm.stepMs / speed);
     return () => clearInterval(timer);
   }, [playing, speed, last, algorithm.stepMs, tick]);
+
+  // One blip per step while playing: sorts sound their compared value, everything else its code line.
+  useEffect(() => {
+    if (!sound || !playing) return;
+    const bars = step as Partial<BarsStep>;
+    const pitch = algorithm.kind === "bars" && bars.a && bars.i !== undefined && bars.i >= 0 ? bars.a[bars.i] / 100 : (step.line % 12) / 12;
+    blip(pitch);
+  }, [sound, playing, step, algorithm.kind]);
 
   // Space plays, arrows step, Home/End jump, R shuffles, 1–4 set the speed. Focused controls keep their own keys.
   useEffect(() => {
@@ -113,12 +129,36 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   }, [last]);
 
   const draw = useCallback(
-    (ctx: Ctx, w: number, h: number) => {
+    (ctx: Ctx, w: number, h: number, progress: number) => {
       setVizTheme(theme);
-      drawStep(ctx, w, h, algorithm.kind, step);
+      drawStep(ctx, w, h, algorithm.kind, step, progress);
     },
-    [step, algorithm.kind, theme]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dragTick repaints after a node was moved in place
+    [step, algorithm.kind, theme, dragTick]
   );
+
+  // Real map: the first click places the start, the second the goal, both snapped to the nearest intersection.
+  const onMapClick = (x: number, y: number, w: number, h: number) => {
+    const map = getRoadMap();
+    if (!map) return;
+    const node = roadNodeAt(map, w, h, x, y);
+    if (node < 0) return;
+    if (!currentRoute || currentRoute.to !== null) setRoute({ from: node, to: null });
+    else if (node !== currentRoute.from) setRoute({ from: currentRoute.from, to: node });
+  };
+
+  // Graph pages: drag a node to lay the graph out by hand; positions live in the shared graph, so every step follows.
+  const onGraphDown = (x: number, y: number, w: number, h: number) => {
+    draggingRef.current = graphNodeAt(step as GraphStep, w, h, x, y);
+  };
+  const onGraphMove = (x: number, y: number, w: number, h: number) => {
+    if (draggingRef.current < 0) return;
+    moveGraphNode(step as GraphStep, draggingRef.current, w, h, x, y);
+    setDragTick((value) => value + 1);
+  };
+  const onGraphUp = () => {
+    draggingRef.current = -1;
+  };
 
   const share = async () => {
     try {
@@ -144,6 +184,11 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
     isOn: index === 0,
   }));
 
+  const isGraph = algorithm.kind === "graph";
+  const isTree = algorithm.kind === "tree" || algorithm.kind === "btree";
+  const routeQuery = currentRoute && currentRoute.to !== null ? `&from=${currentRoute.from}&to=${currentRoute.to}` : "";
+  const variantQuery = `?n=${size}&seed=${currentSeed}${routeQuery}`;
+
   return (
     <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1920px] flex-col">
       <div className="flex min-h-[calc(100vh-5.2rem)] flex-col gap-[1.2rem] px-[2.8rem] pt-[1.6rem] pb-[2rem]">
@@ -159,7 +204,7 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
               <span className="label">{t.runWith}</span>
               <div className="flex overflow-hidden rounded-[0.6rem] border border-line-2">
                 {variants.map((variant) => (
-                  <Link key={variant.id} href={`/${variant.family}/${variant.slug}?n=${size}&seed=${currentSeed}`} className={`px-[1rem] py-[0.5rem] font-mono text-[1.1rem] ${variant.id === algorithmId ? "bg-primary-tint text-primary" : "text-muted hover:text-text"}`}>
+                  <Link key={variant.id} href={`/${variant.family}/${variant.slug}${variantQuery}`} className={`px-[1rem] py-[0.5rem] font-mono text-[1.1rem] ${variant.id === algorithmId ? "bg-primary-tint text-primary" : "text-muted hover:text-text"}`}>
                     {variant.short ?? variant.name}
                   </Link>
                 ))}
@@ -178,7 +223,21 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
         <KpiTiles kpis={kpis} />
 
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-[1.2rem]">
-          <Player algorithm={algorithm} draw={draw} meta={localize(recording.meta, lang)} last={last} stepIdx={stepIdx} size={size} />
+          <Player
+            algorithm={algorithm}
+            draw={draw}
+            meta={localize(recording.meta, lang)}
+            last={last}
+            stepIdx={stepIdx}
+            size={size}
+            hint={needsMap ? t.mapHint : undefined}
+            animateMs={isTree ? 260 : 0}
+            cursor={needsMap ? "crosshair" : isGraph ? "grab" : undefined}
+            onClick={needsMap ? onMapClick : undefined}
+            onPointerDown={isGraph ? onGraphDown : undefined}
+            onPointerMove={isGraph ? onGraphMove : undefined}
+            onPointerUp={isGraph ? onGraphUp : undefined}
+          />
           <div className="flex min-h-0 flex-col gap-[1.2rem]">
             <CodePanel algorithm={algorithm} currentLine={step.line} />
             <div className="card flex flex-col gap-[0.6rem] px-[1.6rem] py-[1.2rem]">

@@ -146,7 +146,21 @@ export function drawRoadStep(ctx: Ctx, w: number, h: number, s: RoadStep) {
   });
   drawRoute(ctx, p, s.path, COLORS.violet);
   if (s.cur >= 0 && !s.path.length) drawPin(ctx, p.px(s.cur), p.py(s.cur), COLORS.act, 4);
-  drawPin(ctx, p.px(s.start), p.py(s.start), COLORS.green);
-  drawPin(ctx, p.px(s.goal), p.py(s.goal), COLORS.green);
+  if (s.start >= 0) drawPin(ctx, p.px(s.start), p.py(s.start), COLORS.green);
+  if (s.goal >= 0) drawPin(ctx, p.px(s.goal), p.py(s.goal), COLORS.green);
   drawCaption(ctx, w, h, map, p.scale);
+}
+
+// The intersection of the main component nearest to a canvas point, within 18px, for click-to-place.
+export function roadNodeAt(map: RoadMap, w: number, h: number, x: number, y: number) {
+  const p = project(map, w, h);
+  let best = -1;
+  let bestDistance = 18;
+  map.component.forEach((node) => {
+    const distance = Math.hypot(p.px(node) - x, p.py(node) - y);
+    if (distance >= bestDistance) return;
+    bestDistance = distance;
+    best = node;
+  });
+  return best;
 }

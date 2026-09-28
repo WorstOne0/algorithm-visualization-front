@@ -10,4 +10,9 @@ export type StepBase = { line: number; note: Localized; counters: Record<string,
 
 export type Recording<S extends StepBase = StepBase> = { steps: S[]; meta: Localized };
 
-export type Recorder = (n: number, seed: number) => Recording;
+// A route the visitor placed by clicking the real map; `to` stays null between the two clicks.
+export type Route = { from: number; to: number | null };
+
+export type RecorderOptions = { route?: Route | null };
+
+export type Recorder = (n: number, seed: number, options?: RecorderOptions) => Recording;

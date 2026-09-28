@@ -1,21 +1,37 @@
 "use client";
 
 // Controllers
-import { useLanguageController } from "@/core/controllers";
+import { useLanguageController, useSoundController } from "@/core/controllers";
 import { usePlayerController } from "../_controllers/player_controller";
 // Models
 import { localize, TRANSLATIONS, type Algorithm } from "@/core/models";
 // Components
-import { PlayerCanvas } from "@/components";
+import { PlayerCanvas, type CanvasPointer } from "@/components";
 // Icons
-import { PauseIcon, PlayIcon, ResetIcon, StepBackIcon, StepForwardIcon } from "@/components/icons";
+import { PauseIcon, PlayIcon, ResetIcon, SoundIcon, StepBackIcon, StepForwardIcon } from "@/components/icons";
 // Utils
 import { VIZ_CSS, type Ctx } from "@/utils/viz";
 
-type Props = { algorithm: Algorithm; draw: (ctx: Ctx, w: number, h: number) => void; meta: string; last: number; stepIdx: number; size: number };
+type Props = {
+  algorithm: Algorithm;
+  draw: (ctx: Ctx, w: number, h: number, progress: number) => void;
+  meta: string;
+  last: number;
+  stepIdx: number;
+  size: number;
+  hint?: string;
+  animateMs?: number;
+  cursor?: string;
+  onClick?: CanvasPointer;
+  onPointerDown?: CanvasPointer;
+  onPointerMove?: CanvasPointer;
+  onPointerUp?: () => void;
+};
 
-export default function Player({ algorithm, draw, meta, last, stepIdx, size }: Props) {
+export default function Player({ algorithm, draw, meta, last, stepIdx, size, hint, animateMs, cursor, onClick, onPointerDown, onPointerMove, onPointerUp }: Props) {
   const lang = useLanguageController((state) => state.lang);
+  const sound = useSoundController((state) => state.sound);
+  const toggleSound = useSoundController((state) => state.toggleSound);
   const playing = usePlayerController((state) => state.playing);
   const speed = usePlayerController((state) => state.speed);
   const seek = usePlayerController((state) => state.seek);
@@ -36,10 +52,11 @@ export default function Player({ algorithm, draw, meta, last, stepIdx, size }: P
           </span>
         ))}
         <div className="flex-1" />
+        {hint && <span className="text-primary">{hint}</span>}
         <span>{meta}</span>
       </div>
       <div className="well min-h-[340px] flex-1 px-[1.6rem] pt-[1.8rem] pb-[1rem]">
-        <PlayerCanvas draw={draw} />
+        <PlayerCanvas draw={draw} animateMs={animateMs} cursor={cursor} onClick={onClick} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} />
       </div>
       <div className="flex items-center gap-[0.8rem] border-t border-line px-[1.4rem] py-[1rem]">
         <button type="button" title="Reset (Home)" onClick={() => seek(0)} className="icon-btn">
@@ -60,6 +77,9 @@ export default function Player({ algorithm, draw, meta, last, stepIdx, size }: P
         <input type="range" min={0} max={last} value={stepIdx} onChange={(event) => seek(Number(event.target.value))} className="mx-[0.8rem] flex-1" />
         <button type="button" title="Speed (1–4)" onClick={cycleSpeed} className="btn-outline h-[3rem] px-[1rem] font-mono text-[1.1rem] font-normal">
           {speed}×
+        </button>
+        <button type="button" title={sound ? t.soundOn : t.soundOff} onClick={toggleSound} className={`icon-btn ${sound ? "border-primary text-primary" : ""}`}>
+          <SoundIcon on={sound} />
         </button>
         <div className="ml-[0.4rem] flex items-center gap-[0.8rem] border-l border-line pl-[0.8rem]">
           <span className="text-[1.2rem] text-muted">{localize(algorithm.sizeLabel, lang)}</span>

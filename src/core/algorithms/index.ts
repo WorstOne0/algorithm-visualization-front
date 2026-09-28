@@ -53,4 +53,4 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   roadBfs: roadRecorder("bfs"),
 };
 
-export type { Counter, Recorder, Recording, StepBase } from "./recording";
+export type { Counter, Recorder, RecorderOptions, Recording, Route, StepBase } from "./recording";

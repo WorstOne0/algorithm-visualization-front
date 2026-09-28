@@ -6,11 +6,28 @@ import { COLORS, monoFont, type Ctx } from "./canvas";
 const NODE_RADIUS = 14;
 const DIM = "rgba(140,147,168,.35)";
 
+// Node positions are unit coordinates inside a 28px / 24px margin; the same mapping serves drawing and dragging.
+export const graphToCanvas = (w: number, h: number) => ({ px: (x: number) => 28 + x * (w - 56), py: (y: number) => 24 + y * (h - 64) });
+export const canvasToGraph = (w: number, h: number, x: number, y: number): [number, number] => [Math.min(0.98, Math.max(0.02, (x - 28) / (w - 56))), Math.min(0.98, Math.max(0.02, (y - 24) / (h - 64)))];
+
+// Drag support: the graph object is shared by every step of a recording, so moving a node moves it in all of them.
+export function moveGraphNode(s: GraphStep, id: number, w: number, h: number, x: number, y: number) {
+  const node = s.graph.nodes[id];
+  [node.x, node.y] = canvasToGraph(w, h, x, y);
+}
+
+export function graphNodeAt(s: GraphStep, w: number, h: number, x: number, y: number) {
+  const { px, py } = graphToCanvas(w, h);
+  const hit = s.graph.nodes.find((node) => Math.hypot(px(node.x) - x, py(node.y) - y) <= NODE_RADIUS + 3);
+  return hit ? hit.id : -1;
+}
+
 // The graph player: lettered nodes, weight labels on the edges, arrows on a DAG, and a mono aside at the bottom.
 export function drawGraphStep(ctx: Ctx, w: number, h: number, s: GraphStep) {
   const { graph } = s;
-  const px = (id: number) => 28 + graph.nodes[id].x * (w - 56);
-  const py = (id: number) => 24 + graph.nodes[id].y * (h - 64);
+  const unit = graphToCanvas(w, h);
+  const px = (id: number) => unit.px(graph.nodes[id].x);
+  const py = (id: number) => unit.py(graph.nodes[id].y);
 
   graph.edges.forEach((edge) => {
     const mark = s.edgeMarks.get(edge.id);

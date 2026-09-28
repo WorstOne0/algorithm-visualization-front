@@ -5,11 +5,13 @@ import Link from "next/link";
 // Controllers
 import { useLanguageController } from "@/core/controllers";
 // Models
-import { localize, TRANSLATIONS, type Family } from "@/core/models";
+import { FAMILIES, localize, TRANSLATIONS, type Family, type FamilyId } from "@/core/models";
 // Components
 import { VizCanvas } from "@/components";
 
-export default function PreviewWell({ family }: { family: Family }) {
+type Props = { family: Family; onPick: (id: FamilyId) => void; rotateMs: number };
+
+export default function PreviewWell({ family, onPick, rotateMs }: Props) {
   const lang = useLanguageController((state) => state.lang);
 
   const t = TRANSLATIONS[lang];
@@ -24,10 +26,15 @@ export default function PreviewWell({ family }: { family: Family }) {
         </div>
         <div className="font-mono text-[1.1rem] text-faint">{family.algo}</div>
         <div className="flex-1" />
-        <span className="text-[1.2rem] text-muted">{t.stageHint}</span>
+        <div className="flex items-center gap-[0.6rem]" title={t.stageHint}>
+          {FAMILIES.map((candidate) => (
+            <button key={candidate.id} type="button" aria-label={localize(candidate.name, lang)} onClick={() => onPick(candidate.id)} className={`h-[0.8rem] rounded-full transition-[width,background-color] duration-300 ${candidate.id === family.id ? "w-[2.4rem] bg-violet" : "w-[0.8rem] bg-faint hover:bg-muted"}`} />
+          ))}
+        </div>
       </div>
-      <div className="well flex-1 p-[1.6rem]">
+      <div className="well relative flex-1 p-[1.6rem]">
         <VizCanvas spec={family.preview} className="h-full min-h-[280px] w-full" />
+        <div key={family.id} className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-violet/60" style={{ animation: `preview-clock ${rotateMs}ms linear forwards` }} />
       </div>
       <div className="flex items-center gap-[1.4rem] border-t border-line px-[1.6rem] py-[1rem]">
         <p className="flex-1 text-[1.25rem] leading-[1.5] text-pretty text-text-2">{localize(family.long, lang)}</p>

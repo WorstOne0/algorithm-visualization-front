@@ -157,6 +157,15 @@ export function ArrowLeftIcon() {
   );
 }
 
+export function SoundIcon({ on }: { on: boolean }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.5 4.5h2l2.5-2v7l-2.5-2h-2z" />
+      {on ? <path d="M8 4a2.5 2.5 0 0 1 0 4M9.5 2.5a4.5 4.5 0 0 1 0 7" /> : <path d="M8 4.5l3 3M11 4.5l-3 3" />}
+    </svg>
+  );
+}
+
 export function InfoIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">

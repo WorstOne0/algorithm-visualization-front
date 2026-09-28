@@ -22,20 +22,27 @@ const POP: Record<RoadAlgo, Localized> = {
 
 const LOADING: Localized = { en: "Loading the street map…", pt: "Carregando o mapa de ruas…" };
 
-// One recorder per strategy; the slider is the straight-line distance between start and goal in hundreds of metres.
-export const roadRecorder = (algo: RoadAlgo): Recorder => (n, seed) => {
+// One recorder per strategy; the slider is the straight-line distance between start and goal in hundreds of metres,
+// unless the visitor clicked a route of their own.
+export const roadRecorder = (algo: RoadAlgo): Recorder => (n, seed, options) => {
   const map = getRoadMap();
   if (!map) {
     const step: RoadStep = { map: null, start: -1, goal: -1, order: [], parent: new Int32Array(0), closedUpTo: 0, open: [], cur: -1, path: [], line: 1, note: LOADING, counters: {} };
     return { steps: [step], meta: LOADING };
   }
+  const route = options?.route;
+  if (route && route.to === null) {
+    const note: Localized = { en: `Start placed on ${streetOf(map, route.from) ?? "an unnamed street"}. Now click the goal.`, pt: `Início colocado na ${streetOf(map, route.from) ?? "rua sem nome"}. Agora clique no destino.` };
+    const step: RoadStep = { map, start: route.from, goal: -1, order: [], parent: new Int32Array(0), closedUpTo: 0, open: [], cur: -1, path: [], line: 1, note, counters: { expanded: 0, expandedUnit: `/ ${map.component.length}`, open: 0, distance: "—", path: "—", straight: "—" } };
+    return { steps: [step], meta: { en: `${map.city} · click the goal`, pt: `${map.city} · clique no destino` } };
+  }
   const rand = seeded(seed);
-  const [start, goal] = pickRoute(map, n * 100, rand);
+  const [start, goal] = route && route.to !== null ? [route.from, route.to] : pickRoute(map, n * 100, rand);
   const straight = straightLine(map, start, goal);
   const total = [...roadSearch(map, algo, start, goal)].length;
   const stride = Math.max(1, Math.ceil(total / TARGET_STEPS));
   const steps: RoadStep[] = [];
-  const at = (node: number) => streetOf(map, node) ?? `#${node}`;
+  const at = (node: number) => streetOf(map, node) ?? "?";
   const counters = (state: { order: number[]; open: number[]; dist: Float64Array; cur: number; path: number[] }) => ({
     expanded: state.order.length,
     expandedUnit: `/ ${map.component.length}`,
@@ -57,6 +64,7 @@ export const roadRecorder = (algo: RoadAlgo): Recorder => (n, seed) => {
         : { en: `${POP[algo].en}: on ${at(state.cur)}, ${algo === "bfs" ? `${state.dist[state.cur]} hops` : km(state.dist[state.cur])} from the start. ${stride > 1 ? `${stride} intersections closed in this step.` : ""}`, pt: `${POP[algo].pt}: na ${at(state.cur)}, a ${algo === "bfs" ? `${state.dist[state.cur]} saltos` : km(state.dist[state.cur])} do início. ${stride > 1 ? `${stride} cruzamentos fechados neste passo.` : ""}` };
     steps.push({ map, start, goal, order: state.order, parent: state.parent, closedUpTo: state.order.length, open: state.open, cur: state.cur, path: state.path, line: isFirst ? 2 : state.done ? 6 : 5, note, counters: counters(state) });
   }
-  const meta: Localized = { en: `${map.city} · ${km(straight)} straight · seed ${seed} · ${steps.length} steps`, pt: `${map.city} · ${km(straight)} em linha reta · seed ${seed} · ${steps.length} passos` };
+  const origin = route ? { en: "your route", pt: "sua rota" } : { en: `seed ${seed}`, pt: `seed ${seed}` };
+  const meta: Localized = { en: `${map.city} · ${km(straight)} straight · ${origin.en} · ${steps.length} steps`, pt: `${map.city} · ${km(straight)} em linha reta · ${origin.pt} · ${steps.length} passos` };
   return { steps, meta };
 };

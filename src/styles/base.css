@@ -25,6 +25,16 @@
     display: block;
   }
 
+  /* The thin bar under the home preview that fills while the next family waits its turn. */
+  @keyframes preview-clock {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
   :focus-visible {
     outline: 0.2rem solid var(--primary);
     outline-offset: 0.2rem;
