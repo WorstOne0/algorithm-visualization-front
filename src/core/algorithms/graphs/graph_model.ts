@@ -12,7 +12,9 @@ export type GraphData = { nodes: GraphNode[]; edges: GraphEdge[]; adj: number[][
 export type NodeMark = "cur" | "frontier" | "seen" | "done";
 export type EdgeMark = "used" | "cur" | "rejected" | "candidate";
 
-export type GraphStep = StepBase & { graph: GraphData; nodeMarks: Map<number, NodeMark>; edgeMarks: Map<number, EdgeMark>; labels: Map<number, string>; aside: string };
+// `edgeLabels` replace the weight at an edge's midpoint (flow / capacity); `matrix` is drawn beside the graph when present.
+export type GraphMatrix = { labels: string[]; values: (number | null)[][]; hot?: [number, number]; pivot?: number };
+export type GraphStep = StepBase & { graph: GraphData; nodeMarks: Map<number, NodeMark>; edgeMarks: Map<number, EdgeMark>; labels: Map<number, string>; edgeLabels?: Map<number, string>; matrix?: GraphMatrix; aside: string };
 
 const LETTERS = "ABCDEFGHIJKLMNOP";
 
@@ -27,7 +29,10 @@ function unionFind(n: number) {
 
 // Nodes on a jittered grid; undirected graphs join each node to its two nearest and get patched into one
 // component, DAGs point every edge from left to right.
-export function makeGraph(n: number, seed: number, { weighted, directed }: { weighted: boolean; directed: boolean }): GraphData {
+export type GraphOptions = { weighted: boolean; directed: boolean; cyclic?: boolean; negative?: boolean };
+
+// `cyclic` orients the undirected layout's edges at random (strongly connected pieces appear); `negative` flips some DAG weights below zero.
+export function makeGraph(n: number, seed: number, { weighted, directed, cyclic = false, negative = false }: GraphOptions): GraphData {
   const rand = seeded(seed);
   const cols = Math.ceil(Math.sqrt(n * 1.7));
   const rows = Math.ceil(n / cols);
@@ -38,14 +43,14 @@ export function makeGraph(n: number, seed: number, { weighted, directed }: { wei
     [cells[i], cells[j]] = [cells[j], cells[i]];
   }
   const points = cells.slice(0, n).map(([r, c]) => ({ x: 0.08 + ((c + 0.5) / cols) * 0.84 + (rand() - 0.5) * 0.08, y: 0.12 + ((r + 0.5) / rows) * 0.76 + (rand() - 0.5) * 0.1 }));
-  if (directed) points.sort((a, b) => a.x - b.x);
+  if (directed && !cyclic) points.sort((a, b) => a.x - b.x);
   const nodes: GraphNode[] = points.map((p, id) => ({ id, label: LETTERS[id], x: p.x, y: p.y }));
   const edges: GraphEdge[] = [];
   const has = (a: number, b: number) => edges.some((e) => (e.u === a && e.v === b) || (e.u === b && e.v === a));
   const add = (u: number, v: number) => edges.push({ id: edges.length, u, v, w: weighted ? 1 + Math.floor(rand() * 9) : 1 });
   const distance = (a: number, b: number) => Math.hypot(nodes[a].x - nodes[b].x, (nodes[a].y - nodes[b].y) * 0.6);
 
-  if (directed) {
+  if (directed && !cyclic) {
     for (let i = 0; i < n; i++) {
       const candidates = nodes.slice(i + 1, i + 5).map((node) => node.id);
       candidates.forEach((j) => {
@@ -77,6 +82,21 @@ export function makeGraph(n: number, seed: number, { weighted, directed }: { wei
     }
   }
 
+  if (directed && cyclic) {
+    edges.forEach((e) => {
+      if (rand() < 0.5) [e.u, e.v] = [e.v, e.u];
+    });
+    for (let extra = 0; extra < Math.ceil(n / 3); extra++) {
+      const a = Math.floor(rand() * n);
+      const b = Math.floor(rand() * n);
+      if (a !== b && !has(a, b)) add(a, b);
+    }
+  }
+  if (negative) {
+    edges.forEach((e) => {
+      if (rand() < 0.3) e.w = -(1 + Math.floor(rand() * 4));
+    });
+  }
   const adj: number[][] = nodes.map(() => []);
   edges.forEach((e) => {
     adj[e.u].push(e.id);
@@ -86,19 +106,20 @@ export function makeGraph(n: number, seed: number, { weighted, directed }: { wei
 }
 
 // The mutable marks every graph recorder writes into, snapshotted on each push.
-export function graphSession(n: number, seed: number, options: { weighted: boolean; directed: boolean }) {
+export function graphSession(n: number, seed: number, options: GraphOptions) {
   const graph = makeGraph(n, seed, options);
   const nodeMarks = new Map<number, NodeMark>();
   const edgeMarks = new Map<number, EdgeMark>();
   const labels = new Map<number, string>();
+  const edgeLabels = new Map<number, string>();
   const steps: GraphStep[] = [];
   let aside = "";
-  const push = (line: number, note: Localized, counters: Record<string, Counter>) => steps.push({ graph, nodeMarks: new Map(nodeMarks), edgeMarks: new Map(edgeMarks), labels: new Map(labels), aside, line, note, counters });
+  const push = (line: number, note: Localized, counters: Record<string, Counter>, extra: Partial<Pick<GraphStep, "graph" | "matrix">> = {}) => steps.push({ graph, nodeMarks: new Map(nodeMarks), edgeMarks: new Map(edgeMarks), labels: new Map(labels), edgeLabels: edgeLabels.size ? new Map(edgeLabels) : undefined, aside, line, note, counters, ...extra });
   const setAside = (text: string) => {
     aside = text;
   };
   const name = (id: number) => graph.nodes[id].label;
   const other = (edge: GraphEdge, from: number) => (edge.u === from ? edge.v : edge.u);
   const meta: Localized = { en: `${n} nodes · ${graph.edges.length} edges · seed ${seed}`, pt: `${n} nós · ${graph.edges.length} arestas · seed ${seed}` };
-  return { graph, nodeMarks, edgeMarks, labels, steps, push, setAside, name, other, meta, unionFind };
+  return { graph, nodeMarks, edgeMarks, labels, edgeLabels, steps, push, setAside, name, other, meta, unionFind };
 }

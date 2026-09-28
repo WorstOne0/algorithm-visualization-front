@@ -3,6 +3,7 @@ import type { AlgorithmId } from "@/core/models/algorithms";
 // Utils
 import { gameTreeRecorder } from "./gameai/record_game_tree";
 import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, recordPrim, recordTopological } from "./graphs/record_graph";
+import { recordBellmanFord, recordEdmondsKarp, recordFloydWarshall, recordKosaraju, recordTarjan, recordUnionFind } from "./graphs/record_graph_more";
 import { gridRecorder } from "./pathfinding/record_grid";
 import { recordBidirectional, recordJumpPoint, recordThetaStar } from "./pathfinding/record_grid_more";
 import { roadRecorder } from "./pathfinding/record_road";
@@ -51,6 +52,12 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   prim: recordPrim,
   kruskal: recordKruskal,
   topological: recordTopological,
+  bellmanFord: recordBellmanFord,
+  floydWarshall: recordFloydWarshall,
+  tarjan: recordTarjan,
+  kosaraju: recordKosaraju,
+  unionFind: recordUnionFind,
+  edmondsKarp: recordEdmondsKarp,
   bst: recordBst,
   traversals: recordTraversals,
   avl: recordAvl,

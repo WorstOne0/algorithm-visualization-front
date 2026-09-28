@@ -1,5 +1,5 @@
 // Models
-import type { GraphStep } from "@/core/algorithms/graphs/graph_model";
+import type { GraphMatrix, GraphStep } from "@/core/algorithms/graphs/graph_model";
 // Utils
 import { COLORS, monoFont, type Ctx } from "./canvas";
 
@@ -23,8 +23,10 @@ export function graphNodeAt(s: GraphStep, w: number, h: number, x: number, y: nu
 }
 
 // The graph player: lettered nodes, weight labels on the edges, arrows on a DAG, and a mono aside at the bottom.
-export function drawGraphStep(ctx: Ctx, w: number, h: number, s: GraphStep) {
+export function drawGraphStep(ctx: Ctx, fullWidth: number, h: number, s: GraphStep) {
   const { graph } = s;
+  // A matrix takes the right part; the graph keeps the rest.
+  const w = s.matrix ? Math.floor(fullWidth * 0.6) : fullWidth;
   const unit = graphToCanvas(w, h);
   const px = (id: number) => unit.px(graph.nodes[id].x);
   const py = (id: number) => unit.py(graph.nodes[id].y);
@@ -56,17 +58,19 @@ export function drawGraphStep(ctx: Ctx, w: number, h: number, s: GraphStep) {
       ctx.closePath();
       ctx.fill();
     }
-    if (!graph.weighted) return;
+    const text = s.edgeLabels?.get(edge.id) ?? (graph.weighted ? String(edge.w) : null);
+    if (text === null) return;
     const mx = (x1 + x2) / 2;
     const my = (y1 + y2) / 2;
+    const boxWidth = 8 + text.length * 6;
     ctx.fillStyle = COLORS.open;
     ctx.beginPath();
-    ctx.roundRect(mx - 9, my - 7, 18, 14, 3);
+    ctx.roundRect(mx - boxWidth / 2, my - 7, boxWidth, 14, 3);
     ctx.fill();
     ctx.fillStyle = mark === "used" || mark === "cur" || mark === "candidate" ? color : COLORS.text;
     ctx.font = monoFont(10);
     ctx.textAlign = "center";
-    ctx.fillText(String(edge.w), mx, my + 3.5);
+    ctx.fillText(text, mx, my + 3.5);
   });
 
   graph.nodes.forEach((node) => {
@@ -87,9 +91,36 @@ export function drawGraphStep(ctx: Ctx, w: number, h: number, s: GraphStep) {
     ctx.fillText(label, px(node.id), py(node.id) + NODE_RADIUS + 13);
   });
 
+  if (s.matrix) drawMatrix(ctx, w + 8, 0, fullWidth - w - 8, h, s.matrix);
   if (!s.aside) return;
   ctx.fillStyle = COLORS.text;
   ctx.font = monoFont(10);
   ctx.textAlign = "left";
   ctx.fillText(s.aside, 12, h - 8);
+}
+
+// The distance table of an all-pairs algorithm: the pivot row and column tinted, the cell being improved lit.
+function drawMatrix(ctx: Ctx, x0: number, y0: number, width: number, height: number, m: GraphMatrix) {
+  const n = m.labels.length;
+  const cell = Math.min(30, (width - 24) / (n + 1), (height - 24) / (n + 1));
+  const left = x0 + 12 + cell;
+  const top = y0 + 12 + cell;
+  ctx.font = monoFont(Math.max(8, Math.min(10, cell * 0.38)));
+  ctx.textAlign = "center";
+  for (let i = 0; i < n; i++) {
+    ctx.fillStyle = i === m.pivot ? COLORS.violet : COLORS.text;
+    ctx.fillText(m.labels[i], left + i * cell + cell / 2, top - cell / 2 + 3);
+    ctx.fillText(m.labels[i], left - cell / 2, top + i * cell + cell / 2 + 3);
+  }
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const isHot = m.hot?.[0] === i && m.hot?.[1] === j;
+      const onPivot = i === m.pivot || j === m.pivot;
+      ctx.fillStyle = isHot ? COLORS.primary : onPivot ? COLORS.vis : COLORS.open;
+      ctx.fillRect(left + j * cell + 0.5, top + i * cell + 0.5, cell - 1, cell - 1);
+      const value = m.values[i][j];
+      ctx.fillStyle = isHot ? "#ffffff" : value === null ? "rgba(140,147,168,.45)" : i === j ? COLORS.text : "#e5e7ef";
+      ctx.fillText(value === null ? "∞" : String(value), left + j * cell + cell / 2, top + i * cell + cell / 2 + 3.5);
+    }
+  }
 }
