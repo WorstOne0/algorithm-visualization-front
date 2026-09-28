@@ -10,31 +10,51 @@ import { COLORS, monoFont, type Ctx } from "./canvas";
 
 export type BarsOptions = { gap?: number; radius?: number; indices?: boolean; values?: boolean };
 
-export function drawBars(ctx: Ctx, w: number, h: number, s: SortState, { gap = 2, radius = 1, indices = false, values = false }: BarsOptions = {}) {
+// `range` dims the bars outside the current call; `held` draws a value lifted out of the array above its gap.
+export type BarsView = SortState & { range?: [number, number]; held?: { index: number; value: number } };
+
+export function drawBars(ctx: Ctx, w: number, h: number, s: BarsView, { gap = 2, radius = 1, indices = false, values = false }: BarsOptions = {}) {
   const n = s.a.length;
   const pad = indices ? 16 : 0;
   const top = values ? 14 : 0;
   const bw = (w - gap * (n - 1)) / n;
+  const barHeight = (v: number) => Math.max(2, ((h - pad - top - 2) * v) / 100);
   s.a.forEach((v, k) => {
-    const bh = Math.max(2, ((h - pad - top - 2) * v) / 100);
+    const bh = barHeight(v);
     const x = k * (bw + gap);
     const y = h - pad - bh;
+    const isHole = s.held !== undefined && k === s.held.index;
+    const isOutside = s.range !== undefined && (k < s.range[0] || k > s.range[1]) && !s.done.has(k);
     ctx.fillStyle = s.done.has(k) ? COLORS.green : k === s.i || k === s.j ? (s.swap ? COLORS.swap : COLORS.primary) : k === s.pivot ? COLORS.violet : COLORS.def;
     if (k === s.pivot && (k === s.i || k === s.j)) ctx.fillStyle = COLORS.violet;
+    ctx.globalAlpha = isHole ? 0.25 : isOutside ? 0.4 : 1;
     ctx.beginPath();
     ctx.roundRect(x, y, bw, bh, radius);
     ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.font = monoFont(9);
     ctx.textAlign = "center";
     if (indices && bw > 14) {
       ctx.fillStyle = COLORS.text;
       ctx.fillText(String(k), x + bw / 2, h - 3);
     }
-    if (values && bw > 18) {
+    if (values && bw > 18 && !isHole) {
       ctx.fillStyle = COLORS.text;
       ctx.fillText(String(v), x + bw / 2, y - 3);
     }
   });
+  if (!s.held) return;
+  const bh = barHeight(s.held.value);
+  const x = s.held.index * (bw + gap);
+  const y = h - pad - bh - 10;
+  ctx.fillStyle = COLORS.violet;
+  ctx.beginPath();
+  ctx.roundRect(x, y, bw, bh, radius);
+  ctx.fill();
+  if (values && bw > 18) {
+    ctx.fillStyle = COLORS.text;
+    ctx.fillText(String(s.held.value), x + bw / 2, y - 3);
+  }
 }
 
 export function drawSearch(ctx: Ctx, w: number, h: number, s: SearchState, gap = 2) {
@@ -62,7 +82,8 @@ export function drawGrid(ctx: Ctx, w: number, h: number, s: GridState, { showCos
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const k = r * cols + c;
-      let color = s.g[r][c] ? COLORS.wall : COLORS.open;
+      const isWall = s.g[r][c] === 1;
+      let color = isWall ? COLORS.wall : COLORS.open;
       if (s.visited.has(k)) color = COLORS.vis;
       if (s.frontier.has(k)) color = COLORS.primary;
       if (k === s.cur) color = COLORS.act;
@@ -70,7 +91,13 @@ export function drawGrid(ctx: Ctx, w: number, h: number, s: GridState, { showCos
       if ((r === s.s[0] && c === s.s[1]) || (r === s.e[0] && c === s.e[1])) color = COLORS.green;
       ctx.fillStyle = color;
       ctx.fillRect(c * cw + 0.5, r * ch + 0.5, cw - 1, ch - 1);
-      if (!showCosts || cw <= 22 || !s.gmap.has(k) || s.g[r][c]) continue;
+      if (!isWall && s.cost[r][c] > 1) {
+        ctx.fillStyle = COLORS.amber;
+        ctx.globalAlpha = path.has(k) || s.frontier.has(k) || k === s.cur ? 0.35 : 0.22;
+        ctx.fillRect(c * cw + 0.5, r * ch + 0.5, cw - 1, ch - 1);
+        ctx.globalAlpha = 1;
+      }
+      if (!showCosts || cw <= 22 || !s.gmap.has(k) || isWall) continue;
       ctx.fillStyle = path.has(k) || s.frontier.has(k) ? "#fff" : COLORS.text;
       ctx.font = monoFont(8);
       ctx.textAlign = "center";

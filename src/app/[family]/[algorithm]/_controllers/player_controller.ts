@@ -3,7 +3,7 @@ import { create } from "zustand";
 // Models
 import type { AlgorithmId, CodeLang } from "@/core/models";
 
-const SPEEDS = [0.5, 1, 2, 4];
+export const SPEEDS = [0.5, 1, 2, 4];
 
 type PlayerController = {
   algorithm: AlgorithmId | null;
@@ -18,6 +18,7 @@ type PlayerController = {
   tick: (last: number) => void;
   togglePlay: (last: number) => void;
   cycleSpeed: () => void;
+  setSpeed: (speed: number) => void;
   setN: (n: number) => void;
   shuffle: () => void;
   setCodeLang: (codeLang: CodeLang) => void;
@@ -37,6 +38,7 @@ export const usePlayerController = create<PlayerController>()((set) => ({
   // Pressing play at the end starts over.
   togglePlay: (last) => set((state) => ({ playing: !state.playing, idx: !state.playing && state.idx >= last ? 0 : state.idx })),
   cycleSpeed: () => set((state) => ({ speed: SPEEDS[(SPEEDS.indexOf(state.speed) + 1) % SPEEDS.length] })),
+  setSpeed: (speed) => set({ speed }),
   setN: (n) => set({ n, idx: 0, playing: false }),
   shuffle: () => set((state) => ({ seed: state.seed + 1, idx: 0, playing: false })),
   setCodeLang: (codeLang) => set({ codeLang }),

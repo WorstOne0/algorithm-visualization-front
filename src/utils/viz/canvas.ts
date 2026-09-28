@@ -19,6 +19,7 @@ export const VIZ_CSS: Record<VizKey, string> = {
   swap: "var(--swap)",
   violet: "var(--violet)",
   green: "var(--green)",
+  amber: "var(--amber)",
   neg: "var(--neg)",
   vis: PALETTES.dark.vis,
   def: PALETTES.dark.def,

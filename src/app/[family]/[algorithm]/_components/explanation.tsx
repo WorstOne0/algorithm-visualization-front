@@ -5,7 +5,7 @@ import Link from "next/link";
 // Controllers
 import { useLanguageController } from "@/core/controllers";
 // Models
-import { localize, PSEUDO, TRANSLATIONS, type Algorithm, type Family } from "@/core/models";
+import { localize, TRANSLATIONS, type Algorithm, type Family } from "@/core/models";
 // Icons
 import { ArrowLeftIcon, PlayIcon } from "@/components/icons";
 // Utils
@@ -113,7 +113,7 @@ export default function Explanation({ algorithm, family, onBackToPlayer }: { alg
         <section className={SECTION}>
           {buildHeading("05", t.pseudocode)}
           <div className="flex flex-1 flex-col overflow-auto rounded-[1rem] bg-well px-[1.8rem] py-[1.6rem] font-mono text-[1.25rem] leading-[1.8] text-[#b4bacb]">
-            {PSEUDO[algorithm.id][lang].map((line) => (
+            {algorithm.pseudo[lang].map((line) => (
               <pre key={line} className="m-0 font-[inherit] whitespace-pre">
                 {line}
               </pre>

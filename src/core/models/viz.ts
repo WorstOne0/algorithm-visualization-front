@@ -4,7 +4,7 @@ import type { SortId } from "@/core/algorithms/sorting/sorts";
 import type { FamilyId } from "./families";
 
 // A named colour of the canvas palette (utils/viz/canvas.ts); the models point at it by key.
-export type VizKey = "primary" | "swap" | "violet" | "green" | "neg" | "vis" | "def" | "act" | "text";
+export type VizKey = "primary" | "swap" | "violet" | "green" | "amber" | "neg" | "vis" | "def" | "act" | "text";
 
 // What a canvas should run; utils/viz/starters.ts turns it into an animation.
 export type VizSpec =

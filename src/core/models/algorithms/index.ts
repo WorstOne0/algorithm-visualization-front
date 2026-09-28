@@ -1,0 +1,20 @@
+// Models
+import { PATHFINDING } from "./pathfinding";
+import { SORTING } from "./sorting";
+import type { AlgorithmSpec } from "./spec";
+
+export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
+
+const SPECS = { ...SORTING, ...PATHFINDING };
+
+export type AlgorithmId = keyof typeof SPECS;
+
+export type Algorithm = AlgorithmSpec & { id: AlgorithmId };
+
+export const ALGORITHMS = Object.fromEntries(Object.entries(SPECS).map(([id, spec]) => [id, { ...spec, id }])) as unknown as Record<AlgorithmId, Algorithm>;
+
+export const ALGORITHM_LIST = Object.values(ALGORITHMS);
+
+export const findAlgorithm = (family: string, slug: string) => ALGORITHM_LIST.find((algorithm) => algorithm.family === family && algorithm.slug === slug);
+
+export const algorithmPath = (algorithm: Algorithm) => `/${algorithm.family}/${algorithm.slug}`;

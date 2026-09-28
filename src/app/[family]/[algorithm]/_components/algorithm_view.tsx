@@ -5,24 +5,21 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // Controllers
 import { useLanguageController, useThemeController } from "@/core/controllers";
-import { usePlayerController } from "../_controllers/player_controller";
+import { SPEEDS, usePlayerController } from "../_controllers/player_controller";
 // Models
-import { recordAstar, type AstarStep } from "@/core/algorithms/pathfinding/record_astar";
-import { recordQuick, type QuickStep } from "@/core/algorithms/sorting/record_quick";
-import { ALGORITHMS, FAMILIES, localize, TRANSLATIONS, type AlgorithmId } from "@/core/models";
+import { RECORDERS, type Counter } from "@/core/algorithms";
+import { ALGORITHMS, FAMILIES, localize, TRANSLATIONS, type AlgorithmId, type Lang } from "@/core/models";
 // Components
 import CodePanel from "./code_panel";
 import Explanation from "./explanation";
-import KpiTiles, { type Kpi } from "./kpi_tiles";
+import KpiTiles from "./kpi_tiles";
 import Player from "./player";
 // Icons
 import { BackIcon } from "@/components/icons";
 // Utils
-import { drawBars, drawGrid, setVizTheme, type Ctx } from "@/utils/viz";
+import { drawStep, setVizTheme, type Ctx } from "@/utils/viz";
 
-// The A* maze is always 44×20; the size slider sets the wall density in percent.
-const MAZE_COLS = 44;
-const MAZE_ROWS = 20;
+const counterText = (value: Counter | undefined, lang: Lang) => (value === undefined ? "" : typeof value === "object" ? localize(value, lang) : String(value));
 
 export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmId }) {
   const lang = useLanguageController((state) => state.lang);
@@ -47,7 +44,7 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   const size = isLoaded ? n : algorithm.defaultN;
   const currentSeed = isLoaded ? seed : 7;
 
-  const recording = useMemo(() => (algorithmId === "quick" ? recordQuick(size, currentSeed) : recordAstar(MAZE_COLS, MAZE_ROWS, currentSeed, size / 100)), [algorithmId, size, currentSeed]);
+  const recording = useMemo(() => RECORDERS[algorithmId](size, currentSeed), [algorithmId, size, currentSeed]);
   const steps = recording.steps;
   const last = steps.length - 1;
   const stepIdx = Math.min(idx, last);
@@ -74,11 +71,30 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
     return () => clearInterval(timer);
   }, [playing, speed, last, algorithm.stepMs, tick]);
 
+  // Space plays, arrows step, Home/End jump, R shuffles, 1–4 set the speed. Focused controls keep their own keys.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && ["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(target.tagName)) return;
+      const player = usePlayerController.getState();
+      if (event.code === "Space") player.togglePlay(last);
+      else if (event.key === "ArrowRight") player.seek(Math.min(player.idx + 1, last));
+      else if (event.key === "ArrowLeft") player.seek(Math.max(player.idx - 1, 0));
+      else if (event.key === "Home") player.seek(0);
+      else if (event.key === "End") player.seek(last);
+      else if (event.key === "r" || event.key === "R") player.shuffle();
+      else if (event.key >= "1" && event.key <= "4") player.setSpeed(SPEEDS[Number(event.key) - 1]);
+      else return;
+      event.preventDefault();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [last]);
+
   const draw = useCallback(
     (ctx: Ctx, w: number, h: number) => {
       setVizTheme(theme);
-      if (algorithm.kind === "bars") drawBars(ctx, w, h, step as QuickStep, { gap: 3, radius: 2, indices: true, values: true });
-      else drawGrid(ctx, w, h, step as AstarStep, { showCosts: true });
+      drawStep(ctx, w, h, algorithm.kind, step);
     },
     [step, algorithm.kind, theme]
   );
@@ -99,30 +115,13 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
     togglePlay(last);
   };
 
-  const buildKpis = (): Kpi[] => {
-    if (algorithmId === "quick") {
-      const quickStep = step as QuickStep;
-      const k = t.kpiQuick;
-      return [
-        { label: k.comparisons, value: quickStep.comparisons, sub: `≈ ${Math.round(1.39 * size * Math.log2(size))} ${k.expected}`, isOn: true },
-        { label: k.swaps, value: quickStep.swaps, sub: k.swapsSub },
-        { label: k.depth, value: quickStep.depth, unit: `/ ${"maxDepth" in recording ? recording.maxDepth : 0}`, sub: k.depthSub },
-        { label: k.range, value: `[${quickStep.lo}, ${quickStep.hi}]`, sub: k.rangeSub },
-        { label: k.inPlace, value: quickStep.done.size, unit: `/ ${size}`, sub: k.inPlaceSub },
-      ];
-    }
-    const astarStep = step as AstarStep;
-    const k = t.kpiAstar;
-    return [
-      { label: k.expanded, value: astarStep.expanded, sub: k.expandedSub, isOn: true },
-      { label: k.open, value: astarStep.frontier.size, sub: k.openSub },
-      { label: k.pushes, value: astarStep.pushed, sub: k.pushesSub },
-      { label: k.path, value: astarStep.pathLen || "—", unit: astarStep.pathLen ? k.cells : "", sub: k.pathSub },
-      { label: k.walls, value: `${size}%`, sub: k.wallsSub },
-    ];
-  };
-
-  const meta = algorithmId === "quick" ? `n = ${size} · seed ${currentSeed} · ${steps.length} ${t.steps}` : `${MAZE_COLS}×${MAZE_ROWS} · ${size}% ${t.walls} · seed ${currentSeed} · ${steps.length} ${t.steps}`;
+  const kpis = algorithm.kpis.map((kpi, index) => ({
+    label: localize(kpi.label, lang),
+    value: counterText(step.counters[kpi.key], lang),
+    unit: kpi.unitKey ? counterText(step.counters[kpi.unitKey], lang) : undefined,
+    sub: localize(kpi.sub, lang),
+    isOn: index === 0,
+  }));
 
   return (
     <div className="relative z-[1] mx-auto flex w-full min-w-[1180px] max-w-[1920px] flex-col">
@@ -143,12 +142,12 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
           </button>
         </div>
 
-        <KpiTiles kpis={buildKpis()} />
+        <KpiTiles kpis={kpis} />
 
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-[1.2rem]">
-          <Player algorithm={algorithm} draw={draw} meta={meta} last={last} stepIdx={stepIdx} size={size} />
+          <Player algorithm={algorithm} draw={draw} meta={localize(recording.meta, lang)} last={last} stepIdx={stepIdx} size={size} />
           <div className="flex min-h-0 flex-col gap-[1.2rem]">
-            <CodePanel algorithmId={algorithmId} currentLine={step.line} />
+            <CodePanel algorithm={algorithm} currentLine={step.line} />
             <div className="card flex flex-col gap-[0.6rem] px-[1.6rem] py-[1.2rem]">
               <div className="flex items-center gap-[1rem]">
                 <span className="label">{t.currentStep}</span>

@@ -42,30 +42,30 @@ export default function Player({ algorithm, draw, meta, last, stepIdx, size }: P
         <PlayerCanvas draw={draw} />
       </div>
       <div className="flex items-center gap-[0.8rem] border-t border-line px-[1.4rem] py-[1rem]">
-        <button type="button" title="Reset" onClick={() => seek(0)} className="icon-btn">
+        <button type="button" title="Reset (Home)" onClick={() => seek(0)} className="icon-btn">
           <ResetIcon />
         </button>
-        <button type="button" title="Step back" onClick={() => seek(Math.max(stepIdx - 1, 0))} className="icon-btn">
+        <button type="button" title="Step back (←)" onClick={() => seek(Math.max(stepIdx - 1, 0))} className="icon-btn">
           <StepBackIcon />
         </button>
-        <button type="button" title={playing ? "Pause" : "Play"} onClick={() => togglePlay(last)} className="flex h-[3rem] w-[3.4rem] items-center justify-center rounded-[0.6rem] bg-primary text-white hover:bg-primary-hover">
+        <button type="button" title={playing ? "Pause (space)" : "Play (space)"} onClick={() => togglePlay(last)} className="flex h-[3rem] w-[3.4rem] items-center justify-center rounded-[0.6rem] bg-primary text-white hover:bg-primary-hover">
           {playing ? <PauseIcon /> : <PlayIcon color="#fff" />}
         </button>
-        <button type="button" title="Step" onClick={() => seek(Math.min(stepIdx + 1, last))} className="icon-btn">
+        <button type="button" title="Step (→)" onClick={() => seek(Math.min(stepIdx + 1, last))} className="icon-btn">
           <StepForwardIcon />
         </button>
         <span className="ml-[0.4rem] font-mono text-[1.1rem] whitespace-nowrap text-muted">
           {t.step} <span className="text-text">{stepIdx}</span> / {last}
         </span>
         <input type="range" min={0} max={last} value={stepIdx} onChange={(event) => seek(Number(event.target.value))} className="mx-[0.8rem] flex-1" />
-        <button type="button" onClick={cycleSpeed} className="btn-outline h-[3rem] px-[1rem] font-mono text-[1.1rem] font-normal">
+        <button type="button" title="Speed (1–4)" onClick={cycleSpeed} className="btn-outline h-[3rem] px-[1rem] font-mono text-[1.1rem] font-normal">
           {speed}×
         </button>
         <div className="ml-[0.4rem] flex items-center gap-[0.8rem] border-l border-line pl-[0.8rem]">
           <span className="text-[1.2rem] text-muted">{localize(algorithm.sizeLabel, lang)}</span>
           <input type="range" min={algorithm.minN} max={algorithm.maxN} step={algorithm.stepN} value={size} onChange={(event) => setN(Number(event.target.value))} className="w-[9rem]" />
           <span className="w-[2.2rem] font-mono text-[1.1rem]">{size}</span>
-          <button type="button" onClick={shuffle} className="btn-outline h-[3rem] px-[1rem] text-[1.2rem]">
+          <button type="button" title="Shuffle (R)" onClick={shuffle} className="btn-outline h-[3rem] px-[1rem] text-[1.2rem]">
             {localize(algorithm.shuffleLabel, lang)}
           </button>
         </div>

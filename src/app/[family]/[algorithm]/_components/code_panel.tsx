@@ -3,13 +3,13 @@
 // Controllers
 import { usePlayerController } from "../_controllers/player_controller";
 // Models
-import { CODE, FILE_NAMES, LANGS, type AlgorithmId } from "@/core/models";
+import { LANGS, type Algorithm } from "@/core/models";
 
-export default function CodePanel({ algorithmId, currentLine }: { algorithmId: AlgorithmId; currentLine: number }) {
+export default function CodePanel({ algorithm, currentLine }: { algorithm: Algorithm; currentLine: number }) {
   const codeLang = usePlayerController((state) => state.codeLang);
   const setCodeLang = usePlayerController((state) => state.setCodeLang);
 
-  const lines = CODE[algorithmId][codeLang];
+  const lines = algorithm.code[codeLang];
   const ext = LANGS.find((lang) => lang.id === codeLang)?.ext ?? "ts";
 
   return (
@@ -22,7 +22,7 @@ export default function CodePanel({ algorithmId, currentLine }: { algorithmId: A
         ))}
         <div className="flex-1" />
         <span className="font-mono text-[1.05rem] text-faint">
-          {FILE_NAMES[algorithmId]}.{ext}
+          {algorithm.file}.{ext}
         </span>
       </div>
       <div className="flex-1 overflow-auto py-[1rem] font-mono text-[1.2rem] leading-[1.75]">

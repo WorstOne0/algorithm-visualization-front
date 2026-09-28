@@ -43,31 +43,6 @@ const en = {
   backTo: "Back to",
   playAgain: "Back to the player",
   walls: "walls",
-  kpiQuick: {
-    comparisons: "COMPARISONS",
-    expected: "expected",
-    swaps: "SWAPS",
-    swapsSub: "incl. pivot placements",
-    depth: "DEPTH",
-    depthSub: "recursion stack now / max",
-    range: "RANGE",
-    rangeSub: "current partition",
-    inPlace: "IN PLACE",
-    inPlaceSub: "final positions so far",
-  },
-  kpiAstar: {
-    expanded: "EXPANDED",
-    expandedSub: "closed cells",
-    open: "OPEN SET",
-    openSub: "candidates in the heap",
-    pushes: "PUSHES",
-    pushesSub: "relaxations that improved g",
-    path: "PATH",
-    cells: "cells",
-    pathSub: "length once the goal is reached",
-    walls: "WALLS",
-    wallsSub: "of 880 cells blocked",
-  },
 };
 
 const pt: typeof en = {
@@ -115,31 +90,6 @@ const pt: typeof en = {
   backTo: "Voltar para",
   playAgain: "Voltar ao player",
   walls: "paredes",
-  kpiQuick: {
-    comparisons: "COMPARAÇÕES",
-    expected: "esperadas",
-    swaps: "TROCAS",
-    swapsSub: "incl. fixar pivôs",
-    depth: "PROFUNDIDADE",
-    depthSub: "pilha de recursão agora / máx",
-    range: "INTERVALO",
-    rangeSub: "partição atual",
-    inPlace: "NO LUGAR",
-    inPlaceSub: "posições finais até aqui",
-  },
-  kpiAstar: {
-    expanded: "EXPANDIDAS",
-    expandedSub: "células fechadas",
-    open: "ABERTO",
-    openSub: "candidatas no heap",
-    pushes: "INSERÇÕES",
-    pushesSub: "relaxamentos que melhoraram g",
-    path: "CAMINHO",
-    cells: "células",
-    pathSub: "comprimento ao chegar",
-    walls: "PAREDES",
-    wallsSub: "de 880 células bloqueadas",
-  },
 };
 
 export const TRANSLATIONS = { en, pt };
