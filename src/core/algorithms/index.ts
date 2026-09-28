@@ -12,6 +12,12 @@ import { recordInsertion } from "./sorting/record_insertion";
 import { recordMerge } from "./sorting/record_merge";
 import { recordQuick } from "./sorting/record_quick";
 import { recordSelection } from "./sorting/record_selection";
+import { recordAvl } from "./trees/record_avl";
+import { recordBinaryHeap } from "./trees/record_binary_heap";
+import { recordBst } from "./trees/record_bst";
+import { recordBTree } from "./trees/record_btree";
+import { recordRedBlack } from "./trees/record_red_black";
+import { recordTraversals } from "./trees/record_traversals";
 
 // One recorder per algorithm page; the player calls it with the size and the seed from the URL.
 export const RECORDERS: Record<AlgorithmId, Recorder> = {
@@ -31,6 +37,12 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   prim: recordPrim,
   kruskal: recordKruskal,
   topological: recordTopological,
+  bst: recordBst,
+  traversals: recordTraversals,
+  avl: recordAvl,
+  redBlack: recordRedBlack,
+  btree: recordBTree,
+  binaryHeap: recordBinaryHeap,
   bfs: gridRecorder("bfs"),
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),

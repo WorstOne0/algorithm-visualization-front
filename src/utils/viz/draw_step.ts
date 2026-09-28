@@ -5,11 +5,14 @@ import type { GridStep } from "@/core/algorithms/pathfinding/record_grid";
 import type { StepBase } from "@/core/algorithms/recording";
 import type { SearchStep } from "@/core/algorithms/searching/record_search";
 import type { BarsStep } from "@/core/algorithms/sorting/bars_recorder";
+import type { BTreeStep } from "@/core/algorithms/trees/record_btree";
+import type { TreeStep } from "@/core/algorithms/trees/tree_model";
 import type { AlgorithmKind } from "@/core/models";
 // Utils
 import type { Ctx } from "./canvas";
 import { drawBars, drawGameTree, drawGrid, drawSearch } from "./draw";
 import { drawGraphStep } from "./draw_graph";
+import { drawBTreeStep, drawTreeStep } from "./draw_tree";
 
 // The player's renderer: one branch per algorithm kind, drawing the recorded step as it is.
 export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, step: StepBase) {
@@ -22,6 +25,10 @@ export function drawStep(ctx: Ctx, w: number, h: number, kind: AlgorithmKind, st
       return drawGrid(ctx, w, h, step as GridStep, { showCosts: true });
     case "graph":
       return drawGraphStep(ctx, w, h, step as GraphStep);
+    case "tree":
+      return drawTreeStep(ctx, w, h, step as TreeStep);
+    case "btree":
+      return drawBTreeStep(ctx, w, h, step as BTreeStep);
     case "gametree":
       return drawGameTree(ctx, w, h, step as GameTreeStep);
     default:

@@ -5,10 +5,11 @@ import { PATHFINDING } from "./pathfinding";
 import { SEARCHING } from "./searching";
 import { SORTING } from "./sorting";
 import type { AlgorithmSpec } from "./spec";
+import { TREES } from "./trees";
 
 export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
 
-const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...GRAPHS, ...GAMEAI };
+const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...GRAPHS, ...TREES, ...GAMEAI };
 
 export type AlgorithmId = keyof typeof SPECS;
 
