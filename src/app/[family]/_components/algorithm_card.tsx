@@ -14,6 +14,7 @@ import { VizCanvas } from "@/components";
 // Sorting and pathfinding cards run the row's own algorithm; the other families reuse the family animation, smaller.
 const cardSpec = (family: Family, row: AlgorithmRow): VizSpec => {
   if (family.id === "sorting") return { starter: "sort", n: 18, algo: row.viz as SortId, ms: 70, gap: 1.5 };
+  if (row.viz === "map") return { starter: "map", perFrame: 6 };
   if (family.id === "pathfinding") return { starter: "path", cols: 26, rows: 9, ms: 60, algo: row.viz as PathAlgo };
   switch (family.card.starter) {
     case "search":

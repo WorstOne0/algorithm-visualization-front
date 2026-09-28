@@ -4,6 +4,7 @@ import type { AlgorithmId } from "@/core/models/algorithms";
 import { gameTreeRecorder } from "./gameai/record_game_tree";
 import { recordGraphBfs, recordGraphDfs, recordGraphDijkstra, recordKruskal, recordPrim, recordTopological } from "./graphs/record_graph";
 import { gridRecorder } from "./pathfinding/record_grid";
+import { roadRecorder } from "./pathfinding/record_road";
 import type { Recorder } from "./recording";
 import { recordBinary, recordLinear } from "./searching/record_search";
 import { recordBubble } from "./sorting/record_bubble";
@@ -47,6 +48,9 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   dfs: gridRecorder("dfs"),
   dijkstra: gridRecorder("dijkstra", true),
   astar: gridRecorder("astar"),
+  roadAstar: roadRecorder("astar"),
+  roadDijkstra: roadRecorder("dijkstra"),
+  roadBfs: roadRecorder("bfs"),
 };
 
 export type { Counter, Recorder, Recording, StepBase } from "./recording";

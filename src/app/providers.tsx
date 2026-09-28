@@ -3,7 +3,7 @@
 // Next
 import { useEffect } from "react";
 // Controllers
-import { useLanguageController, useThemeController } from "@/core/controllers";
+import { useLanguageController, useRunsController, useThemeController } from "@/core/controllers";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const lang = useLanguageController((state) => state.lang);
@@ -12,6 +12,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     useLanguageController.persist.rehydrate();
     useThemeController.persist.rehydrate();
+    useRunsController.persist.rehydrate();
   }, []);
 
   useEffect(() => {

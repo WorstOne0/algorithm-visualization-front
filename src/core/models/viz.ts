@@ -1,5 +1,6 @@
 // Models
 import type { PathAlgo } from "@/core/algorithms/pathfinding/grid_search";
+import type { RoadAlgo } from "@/core/algorithms/pathfinding/road_search";
 import type { SortId } from "@/core/algorithms/sorting/sorts";
 import type { FamilyId } from "./families";
 
@@ -11,6 +12,8 @@ export type VizSpec =
   | { starter: "sort"; n?: number; algo?: SortId; ms?: number; gap?: number; radius?: number; indices?: boolean }
   | { starter: "search"; n?: number; ms?: number; gap?: number }
   | { starter: "path"; cols?: number; rows?: number; density?: number; ms?: number; algo?: PathAlgo }
+  // The real street map, route after route (utils/viz/road_showpiece.ts); perFrame is intersections closed per frame.
+  | { starter: "map"; algo?: RoadAlgo; perFrame?: number }
   | { starter: "graph"; n?: number; ms?: number; r?: number }
   | { starter: "tree"; n?: number; ms?: number; r?: number }
   | { starter: "minimax"; branch?: number; depth?: number; ms?: number; r?: number }

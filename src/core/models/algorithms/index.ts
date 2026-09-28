@@ -2,6 +2,7 @@
 import { GAMEAI } from "./gameai";
 import { GRAPHS } from "./graphs";
 import { PATHFINDING } from "./pathfinding";
+import { ROADS } from "./roads";
 import { SEARCHING } from "./searching";
 import { SORTING } from "./sorting";
 import type { AlgorithmSpec } from "./spec";
@@ -9,7 +10,7 @@ import { TREES } from "./trees";
 
 export type { AlgorithmKind, AlgorithmSpec, KpiSpec } from "./spec";
 
-const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...GRAPHS, ...TREES, ...GAMEAI };
+const SPECS = { ...SORTING, ...SEARCHING, ...PATHFINDING, ...ROADS, ...GRAPHS, ...TREES, ...GAMEAI };
 
 export type AlgorithmId = keyof typeof SPECS;
 

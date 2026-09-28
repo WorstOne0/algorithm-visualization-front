@@ -2,17 +2,17 @@
 
 // Next
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // Controllers
-import { useLanguageController, useThemeController } from "@/core/controllers";
+import { useLanguageController, useRoadMapController, useRunsController, useThemeController } from "@/core/controllers";
 import { SPEEDS, usePlayerController } from "../_controllers/player_controller";
 // Models
 import { RECORDERS, type Counter } from "@/core/algorithms";
-import { ALGORITHMS, FAMILIES, localize, TRANSLATIONS, type AlgorithmId, type Lang } from "@/core/models";
+import { ALGORITHMS, FAMILIES, findAlgorithm, localize, TRANSLATIONS, type AlgorithmId, type Lang } from "@/core/models";
 // Components
+import { KpiTiles } from "@/components";
 import CodePanel from "./code_panel";
 import Explanation from "./explanation";
-import KpiTiles from "./kpi_tiles";
 import Player from "./player";
 // Icons
 import { BackIcon } from "@/components/icons";
@@ -34,7 +34,11 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   const tick = usePlayerController((state) => state.tick);
   const seek = usePlayerController((state) => state.seek);
   const togglePlay = usePlayerController((state) => state.togglePlay);
+  const mapStatus = useRoadMapController((state) => state.status);
+  const loadMap = useRoadMapController((state) => state.load);
+  const addRun = useRunsController((state) => state.addRun);
   const [isCopied, setIsCopied] = useState(false);
+  const recordedRef = useRef<string | null>(null);
 
   const t = TRANSLATIONS[lang];
   const algorithm = ALGORITHMS[algorithmId];
@@ -43,12 +47,29 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
   const isLoaded = loadedAlgorithm === algorithmId;
   const size = isLoaded ? n : algorithm.defaultN;
   const currentSeed = isLoaded ? seed : 7;
+  // The real-map pages record only once the street map has been fetched; before that the recorder yields one loading step.
+  const needsMap = algorithm.kind === "map";
+  const mapReady = !needsMap || mapStatus === "ready";
 
-  const recording = useMemo(() => RECORDERS[algorithmId](size, currentSeed), [algorithmId, size, currentSeed]);
+  const recording = useMemo(() => RECORDERS[algorithmId](mapReady ? size : 0, currentSeed), [algorithmId, size, currentSeed, mapReady]);
   const steps = recording.steps;
   const last = steps.length - 1;
   const stepIdx = Math.min(idx, last);
   const step = steps[stepIdx];
+  const variants = (algorithm.variants ?? []).map((slug) => findAlgorithm(algorithm.family, slug)).filter((variant) => !!variant);
+
+  useEffect(() => {
+    if (needsMap) loadMap();
+  }, [needsMap, loadMap]);
+
+  // A playback that reaches its last step is a run for the home dashboard, once per input.
+  useEffect(() => {
+    if (!isLoaded || !mapReady || last <= 0 || stepIdx !== last) return;
+    const key = `${algorithmId}:${size}:${currentSeed}`;
+    if (recordedRef.current === key) return;
+    recordedRef.current = key;
+    addRun({ algorithm: algorithmId, n: size, seed: currentSeed, steps: last + 1, at: new Date().toISOString() });
+  }, [isLoaded, mapReady, last, stepIdx, algorithmId, size, currentSeed, addRun]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -133,6 +154,18 @@ export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmI
           <span className="h-[0.8rem] w-[0.8rem] rounded-full bg-violet" />
           <h1 className="text-[1.7rem] font-semibold">{algorithm.name}</h1>
           <span className="text-[1.25rem] text-muted">· {localize(algorithm.subtitle, lang)}</span>
+          {variants.length > 0 && (
+            <div className="ml-[0.8rem] flex items-center gap-[0.8rem]">
+              <span className="label">{t.runWith}</span>
+              <div className="flex overflow-hidden rounded-[0.6rem] border border-line-2">
+                {variants.map((variant) => (
+                  <Link key={variant.id} href={`/${variant.family}/${variant.slug}?n=${size}&seed=${currentSeed}`} className={`px-[1rem] py-[0.5rem] font-mono text-[1.1rem] ${variant.id === algorithmId ? "bg-primary-tint text-primary" : "text-muted hover:text-text"}`}>
+                    {variant.short ?? variant.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex-1" />
           <span className="font-mono text-[1.1rem] text-faint">
             /{algorithm.family}/{algorithm.slug}

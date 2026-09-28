@@ -11,6 +11,7 @@ import type { VizSpec } from "@/core/models";
 import { startAmbient } from "./ambient";
 import { fit, stepper } from "./canvas";
 import { drawBars, drawGraph, drawGrid, drawMinimax, drawSearch, drawTree } from "./draw";
+import { startRoadShowpiece } from "./road_showpiece";
 
 type Stop = () => void;
 
@@ -43,6 +44,8 @@ export function startViz(canvas: HTMLCanvasElement, spec: VizSpec): Stop {
       const { branch = 3, depth = 3, ms = 260, r = 4 } = spec;
       return stepper(canvas, () => minimax(branch, depth), (ctx, w, h, s) => drawMinimax(ctx, w, h, s, r, depth), ms, 1800);
     }
+    case "map":
+      return startRoadShowpiece(canvas, spec.algo, spec.perFrame);
     case "ambient":
       return startAmbient(canvas, spec.family, spec.alpha);
   }

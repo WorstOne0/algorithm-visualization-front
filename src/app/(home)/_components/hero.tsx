@@ -9,16 +9,15 @@ import { TRANSLATIONS } from "@/core/models";
 // Icons
 import { PlayIcon } from "@/components/icons";
 
-const COUNTERS = [
-  { key: "kFamilies", value: "06" },
-  { key: "kAlgos", value: "52" },
-  { key: "kLangs", value: "07" },
-] as const;
-
-export default function Hero() {
+export default function Hero({ total }: { total: number }) {
   const lang = useLanguageController((state) => state.lang);
 
   const t = TRANSLATIONS[lang];
+  const counters = [
+    { key: "kFamilies", value: "06" },
+    { key: "kAlgos", value: String(total) },
+    { key: "kLangs", value: "07" },
+  ] as const;
 
   return (
     <div className="flex flex-col justify-center gap-[2rem] py-[1.2rem]">
@@ -35,7 +34,7 @@ export default function Hero() {
         </Link>
       </div>
       <div className="mt-[0.8rem] flex gap-[2.4rem] border-t border-line pt-[1rem]">
-        {COUNTERS.map((counter) => (
+        {counters.map((counter) => (
           <div key={counter.key} className="flex flex-col gap-[0.2rem]">
             <span className="label">{t[counter.key]}</span>
             <span className="font-mono text-[2rem] font-semibold">{counter.value}</span>

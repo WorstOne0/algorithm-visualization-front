@@ -156,3 +156,12 @@ export function ArrowLeftIcon() {
     </svg>
   );
 }
+
+export function InfoIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <circle cx="6" cy="6" r="5" />
+      <path d="M6 5.4v3M6 3.4v.2" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -5,7 +5,7 @@ import type { Localized } from "../translations";
 import type { VizKey } from "../viz";
 
 // Which player renderer draws the steps (utils/viz/draw_step.ts).
-export type AlgorithmKind = "bars" | "search" | "grid" | "graph" | "tree" | "btree" | "gametree";
+export type AlgorithmKind = "bars" | "search" | "grid" | "map" | "graph" | "tree" | "btree" | "gametree";
 
 // One KPI tile: `key` reads the step's counters; `unitKey` names a counter holding the unit text.
 export type KpiSpec = { key: string; label: Localized; sub: Localized; unitKey?: string };
@@ -15,6 +15,8 @@ export type AlgorithmSpec = {
   slug: string;
   kind: AlgorithmKind;
   name: string;
+  // The label on the variants switch, when the name is long.
+  short?: string;
   subtitle: Localized;
   sizeLabel: Localized;
   minN: number;
@@ -24,6 +26,8 @@ export type AlgorithmSpec = {
   shuffleLabel: Localized;
   // Milliseconds per step at 1×.
   stepMs: number;
+  // Slugs of sibling pages on the same input (the real-map searches), shown as a switch in the header.
+  variants?: readonly string[];
   legend: [VizKey, Localized][];
   kpis: KpiSpec[];
   tagline: Localized;
