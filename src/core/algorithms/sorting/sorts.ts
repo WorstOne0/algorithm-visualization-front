@@ -293,6 +293,38 @@ function* radix(input: number[]): SortGenerator {
   yield allDone(a);
 }
 
-export const SORTS = { bubble, insertion, selection, cocktail, gnome, comb, shell, merge, quick, heap, oddeven, radix };
+// The card animations of the two jokes: bogo shuffles until sorted (it gives up after a while), sleep fires values in order.
+function* bogo(input: number[]): SortGenerator {
+  const a = input.slice();
+  const d = new Set<number>();
+  yield snap(a, -1, -1, d);
+  for (let attempt = 0; attempt < 300; attempt++) {
+    let fail = -1;
+    for (let k = 1; k < a.length && fail < 0; k++) if (a[k - 1] > a[k]) fail = k;
+    if (fail < 0) break;
+    yield snap(a, fail - 1, fail, d);
+    for (let k = a.length - 1; k > 0; k--) swapAt(a, k, Math.floor(Math.random() * (k + 1)));
+    yield snap(a, -1, -1, d, true);
+  }
+  yield allDone(a);
+}
+
+function* sleep(input: number[]): SortGenerator {
+  const a = input.slice();
+  const d = new Set<number>();
+  yield snap(a, -1, -1, d);
+  const output: number[] = [];
+  const pending = a.slice();
+  for (const value of input.slice().sort((p, q) => p - q)) {
+    pending.splice(pending.indexOf(value), 1);
+    output.push(value);
+    a.splice(0, a.length, ...output, ...pending);
+    d.add(output.length - 1);
+    yield snap(a, output.length - 1, -1, d);
+  }
+  yield allDone(a);
+}
+
+export const SORTS = { bubble, insertion, selection, cocktail, gnome, comb, shell, merge, quick, heap, oddeven, radix, bogo, sleep };
 
 export type SortId = keyof typeof SORTS;

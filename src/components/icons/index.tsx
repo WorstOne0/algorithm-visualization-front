@@ -1,16 +1,12 @@
+// Next
+import Image from "next/image";
 // Models
 import type { FamilyId } from "@/core/models";
 
 // The design's own 16px glyphs; react-icons has no match for the family marks, so they all live here.
 
 export function LogoMark() {
-  return (
-    <span className="mb-[1.4rem] flex h-[3.2rem] w-[3.2rem] items-end justify-center gap-[0.2rem] rounded-[0.8rem] bg-linear-to-br from-primary to-violet px-[0.8rem] py-[0.7rem]">
-      <span className="h-[0.8rem] w-[0.4rem] rounded-[1px] bg-white" />
-      <span className="h-[1.6rem] w-[0.4rem] rounded-[1px] bg-white" />
-      <span className="h-[1.2rem] w-[0.4rem] rounded-[1px] bg-white" />
-    </span>
-  );
+  return <Image src="/logo/logo.png" alt="" width={64} height={64} unoptimized className="mb-[1.4rem] h-[3.6rem] w-[3.6rem]" />;
 }
 
 export function FamilyIcon({ id }: { id: FamilyId }) {

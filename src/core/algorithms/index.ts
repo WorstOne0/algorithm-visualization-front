@@ -15,6 +15,7 @@ import { recordBubble } from "./sorting/record_bubble";
 import { recordHeap } from "./sorting/record_heap";
 import { recordInsertion } from "./sorting/record_insertion";
 import { recordMerge } from "./sorting/record_merge";
+import { recordBogo, recordSleep } from "./sorting/record_fun";
 import { recordCocktail, recordComb, recordGnome, recordOddEven, recordRadix, recordShell } from "./sorting/record_more";
 import { recordQuick } from "./sorting/record_quick";
 import { recordSelection } from "./sorting/record_selection";
@@ -40,6 +41,8 @@ export const RECORDERS: Record<AlgorithmId, Recorder> = {
   shell: recordShell,
   oddeven: recordOddEven,
   radix: recordRadix,
+  bogo: recordBogo,
+  sleep: recordSleep,
   linear: recordLinear,
   binary: recordBinary,
   jump: recordJump,

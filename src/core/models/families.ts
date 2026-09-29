@@ -29,7 +29,7 @@ export type Family = {
 export const FAMILIES: Family[] = [
   {
     id: "sorting",
-    count: 12,
+    count: 14,
     range: "O(n log n) – O(n²)",
     algo: "quick sort · n=32",
     kind: { en: "bar visualizer", pt: "visualizador de barras" },
@@ -166,6 +166,8 @@ export const ALGORITHMS_BY_FAMILY: Record<FamilyId, AlgorithmRow[]> = {
     { viz: "heap", name: "Heap sort", avg: "O(n log n)", worst: "O(n log n)", space: "O(1)", desc: { en: "Builds a max-heap, then pops the maximum to the end n times.", pt: "Monta um max-heap, depois retira o máximo para o fim n vezes." }, page: "heap" },
     { viz: "oddeven", name: "Odd-even sort", avg: "O(n²)", worst: "O(n²)", space: "O(1)", desc: { en: "Alternates odd and even pairs; every pair in a phase is independent.", pt: "Alterna pares ímpares e pares; cada par de uma fase é independente." }, page: "oddeven" },
     { viz: "radix", name: "Radix sort (LSD)", avg: "O(n · k)", worst: "O(n · k)", space: "O(n + k)", desc: { en: "Buckets by digit, least significant first. No comparisons at all.", pt: "Baldes por dígito, do menos significativo. Nenhuma comparação." }, page: "radix" },
+    { viz: "sleep", name: "Sleep sort", avg: "O(max)", worst: "O(max)", space: "O(n)", desc: { en: "One timer per value; whoever wakes first is printed first. The scheduler does the sorting.", pt: "Um timer por valor; quem acorda primeiro é impresso primeiro. O escalonador faz a ordenação." }, page: "sleep" },
+    { viz: "bogo", name: "Bogo sort", avg: "O(n · n!)", worst: "O(∞)", space: "O(1)", desc: { en: "Shuffle until it happens to be sorted. The joke every sorting video ends with.", pt: "Embaralha até por acaso estar ordenado. A piada com que todo vídeo de ordenação termina." }, page: "bogo" },
   ],
   pathfinding: [
     { viz: "map", name: "Real map · Cascavel", avg: "O(E log V)", worst: "O(E log V)", space: "O(V)", desc: { en: "A*, Dijkstra and BFS on the real streets of Cascavel, from OpenStreetMap.", pt: "A*, Dijkstra e BFS nas ruas reais de Cascavel, do OpenStreetMap." }, page: "roadAstar" },

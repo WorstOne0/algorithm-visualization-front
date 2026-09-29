@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 export const metadata: Metadata = {
   title: "Algorithm Visualizer",
   description: "Watch algorithms work, one step at a time.",
-  icons: { icon: "/logo/logo.svg" },
+  icons: { icon: "/logo/logo.png", apple: "/logo/logo.png" },
 };
 
 // Applies the persisted theme before first paint; the key mirrors core/controllers/theme_controller.ts.

@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: algorithm_visualization
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=algorithm-visualization.kuuhaku.dev
+      - VIRTUAL_PORT=5002
+    expose:
+      - 5002
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
