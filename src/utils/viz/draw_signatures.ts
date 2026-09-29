@@ -259,7 +259,7 @@ export function drawTicTacTree(ctx: Ctx, w: number, h: number, s: TttStep) {
     ctx.fillText(candidate.value > 0 ? `+${candidate.value}` : String(candidate.value), x + size / 2, rowY + size + 12);
     ctx.fillStyle = COLORS.text;
     ctx.font = monoFont(8.5);
-    ctx.fillText(`${candidate.nodes} n`, x + size / 2, rowY + size + 23);
+    ctx.fillText(candidate.replies.length ? `${candidate.traps}/${candidate.replies.length} traps` : `${candidate.nodes} n`, x + size / 2, rowY + size + 23);
   });
   drawBoard(ctx, rootX, rootY, rootSize, s.root, s.shown ? COLORS.def : COLORS.act, 1.4);
   if (!s.showReplies || s.chosen === null || !s.replies.length) return;

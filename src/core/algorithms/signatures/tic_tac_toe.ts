@@ -5,8 +5,9 @@ import type { Counter, StepBase } from "../recording";
 
 export type Cell = "X" | "O" | null;
 export type Board = Cell[];
-export type Candidate = { cell: number; board: Board; value: number; nodes: number; cutoffs: number };
 export type Reply = { cell: number; board: Board; value: number };
+// `traps` counts the opponent's replies that lose for them: the tie-break among moves with the same minimax value.
+export type Candidate = { cell: number; board: Board; value: number; nodes: number; cutoffs: number; replies: Reply[]; traps: number };
 // `shown` is how many candidates the stage reveals so far; `replies` appear once the move is chosen.
 export type TttStep = StepBase & { root: Board; player: Cell; candidates: Candidate[]; shown: number; chosen: number | null; replies: Reply[]; showReplies: boolean };
 export type TttRecording = { steps: TttStep[]; meta: Localized; move: number };
@@ -76,30 +77,34 @@ export function recordEngineMove(root: Board, player: Cell): TttRecording {
     board[cell] = player;
     const stats = { nodes: 0, cutoffs: 0 };
     const value = winnerOf(board) ? 9 : isFull(board) ? 0 : -search(board, other(player), -Infinity, Infinity, 1, stats);
+    // Every reply is scored too: the ones that lose for the opponent are the traps this move sets.
+    const replies: Reply[] = [];
+    if (!winnerOf(board) && !isFull(board)) {
+      for (let reply = 0; reply < 9; reply++) {
+        if (board[reply]) continue;
+        const after = [...board];
+        after[reply] = other(player);
+        replies.push({ cell: reply, board: after, value: winnerOf(after) ? -9 : isFull(after) ? 0 : search(after, player, -Infinity, Infinity, 2, stats) });
+      }
+    }
+    const traps = replies.filter((reply) => reply.value > 0).length;
     nodes += stats.nodes;
     cutoffs += stats.cutoffs;
-    candidates.push({ cell, board, value, nodes: stats.nodes, cutoffs: stats.cutoffs });
+    candidates.push({ cell, board, value, nodes: stats.nodes, cutoffs: stats.cutoffs, replies, traps });
     const forecast = forecastOf(value);
-    push(3, { en: `Cell ${cell + 1}: value ${scoreText(value)}, a ${forecast.en} with best play${value > 0 ? ` in ${10 - value} more plies` : ""}. ${stats.nodes} nodes searched, ${stats.cutoffs} cutoffs.`, pt: `Casa ${cell + 1}: valor ${scoreText(value)}, ${forecast.pt} com o melhor jogo${value > 0 ? ` em mais ${10 - value} lances` : ""}. ${stats.nodes} nós buscados, ${stats.cutoffs} cortes.` }, candidates.length, null, [], false);
+    const trapText = replies.length ? { en: ` ${traps} of ${other(player)}'s ${replies.length} replies would lose.`, pt: ` ${traps} das ${replies.length} respostas de ${other(player)} perderiam.` } : { en: "", pt: "" };
+    push(3, { en: `Cell ${cell + 1}: value ${scoreText(value)}, a ${forecast.en} with best play${value > 0 ? ` in ${10 - value} more plies` : ""}.${trapText.en} ${stats.nodes} nodes searched, ${stats.cutoffs} cutoffs.`, pt: `Casa ${cell + 1}: valor ${scoreText(value)}, ${forecast.pt} com o melhor jogo${value > 0 ? ` em mais ${10 - value} lances` : ""}.${trapText.pt} ${stats.nodes} nós buscados, ${stats.cutoffs} cortes.` }, candidates.length, null, [], false);
   });
   const bestValue = Math.max(...candidates.map((candidate) => candidate.value));
-  // Among equal values prefer the centre, then corners: the same score, a more natural game.
-  const preference = [4, 0, 2, 6, 8, 1, 3, 5, 7];
-  const chosen = candidates.map((candidate, index) => index).filter((index) => candidates[index].value === bestValue).sort((p, q) => preference.indexOf(candidates[p].cell) - preference.indexOf(candidates[q].cell))[0];
+  // Among equal values take the move with the most traps, then corners before the centre before the edges.
+  const preference = [0, 2, 6, 8, 4, 1, 3, 5, 7];
+  const tied = candidates.map((candidate, index) => index).filter((index) => candidates[index].value === bestValue);
+  const chosen = tied.sort((p, q) => candidates[q].traps - candidates[p].traps || preference.indexOf(candidates[p].cell) - preference.indexOf(candidates[q].cell))[0];
   const move = candidates[chosen];
-  const replies: Reply[] = [];
-  if (!winnerOf(move.board) && !isFull(move.board)) {
-    for (let cell = 0; cell < 9; cell++) {
-      if (move.board[cell]) continue;
-      const board = [...move.board];
-      board[cell] = other(player);
-      const stats = { nodes: 0, cutoffs: 0 };
-      const value = winnerOf(board) ? -9 : isFull(board) ? 0 : search(board, player, -Infinity, Infinity, 2, stats);
-      replies.push({ cell, board, value });
-    }
-  }
+  const replies = move.replies;
   const forecast = forecastOf(bestValue);
-  push(6, { en: `Play cell ${move.cell + 1}: the best value is ${scoreText(bestValue)} (${forecast.en}). ${nodes} nodes and ${cutoffs} cutoffs for this move.${replies.length ? ` Under it, ${other(player)}'s ${replies.length} replies and what each leads to.` : ""}`, pt: `Joga na casa ${move.cell + 1}: o melhor valor é ${scoreText(bestValue)} (${forecast.pt}). ${nodes} nós e ${cutoffs} cortes para esta jogada.${replies.length ? ` Abaixo, as ${replies.length} respostas de ${other(player)} e aonde cada uma leva.` : ""}` }, candidates.length, chosen, replies, true);
+  const why = tied.length > 1 && replies.length ? { en: ` Among the ${tied.length} moves worth ${scoreText(bestValue)} it sets the most traps: ${move.traps} of ${other(player)}'s ${replies.length} replies lose.`, pt: ` Entre as ${tied.length} jogadas que valem ${scoreText(bestValue)} é a que arma mais armadilhas: ${move.traps} das ${replies.length} respostas de ${other(player)} perdem.` } : { en: "", pt: "" };
+  push(6, { en: `Play cell ${move.cell + 1}: the best value is ${scoreText(bestValue)} (${forecast.en}).${why.en} ${nodes} nodes and ${cutoffs} cutoffs for this move.${replies.length ? ` Under it, ${other(player)}'s ${replies.length} replies and what each leads to.` : ""}`, pt: `Joga na casa ${move.cell + 1}: o melhor valor é ${scoreText(bestValue)} (${forecast.pt}).${why.pt} ${nodes} nós e ${cutoffs} cortes para esta jogada.${replies.length ? ` Abaixo, as ${replies.length} respostas de ${other(player)} e aonde cada uma leva.` : ""}` }, candidates.length, chosen, replies, true);
   const meta: Localized = { en: `${player} to move · ${empties.length} candidates · ${nodes} nodes`, pt: `${player} joga · ${empties.length} candidatos · ${nodes} nós` };
   return { steps, meta, move: move.cell };
 }

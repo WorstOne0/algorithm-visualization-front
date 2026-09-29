@@ -167,8 +167,8 @@ export const SIGNATURES: Signature[] = [
       ],
     },
     notice: {
-      en: ["The first move searches thousands of nodes; by the fourth it is a few dozen: the tree shrinks with every ply.", "Cutoffs count the branches alpha-beta never expanded; without pruning the node count would be several times larger.", "When every candidate scores 0 the game is a forced draw: the engine just avoids losing."],
-      pt: ["A primeira jogada busca milhares de nós; na quarta são algumas dezenas: a árvore encolhe a cada lance.", "Os cortes contam os ramos que o alfa-beta nunca expandiu; sem poda o número de nós seria várias vezes maior.", "Quando todo candidato pontua 0 o jogo é empate forçado: o motor só evita perder."],
+      en: ["The first move searches over a hundred thousand nodes, every candidate and every reply to it played to the end; by the fourth move it is a few hundred: the tree shrinks with every ply.", "Cutoffs count the branches alpha-beta never expanded; without pruning the node count would be several times larger.", "All nine opening moves score 0, so the tie-break decides: the engine counts traps, the replies that would lose for you, and opens in a corner because seven of your eight answers lose there; the centre leaves only four."],
+      pt: ["A primeira jogada busca mais de cem mil nós, cada candidato e cada resposta a ele jogados até o fim; na quarta jogada são algumas centenas: a árvore encolhe a cada lance.", "Os cortes contam os ramos que o alfa-beta nunca expandiu; sem poda o número de nós seria várias vezes maior.", "As nove aberturas valem 0, então o desempate decide: o motor conta armadilhas, as respostas que perderiam para você, e abre no canto porque sete das suas oito respostas perdem ali; o centro deixa só quatro."],
     },
     card: { starter: "minimax", r: 3 },
   },
