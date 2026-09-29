@@ -151,6 +151,21 @@ export function drawCityMap(ctx: Ctx, w: number, h: number, s: RoadsStep) {
     ctx.fillText(text, mx, my + 3);
   });
   ctx.setLineDash([]);
+  if (s.loop.length) {
+    ctx.save();
+    ctx.strokeStyle = COLORS.violet;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.shadowColor = COLORS.violet;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    s.loop.forEach((id) => {
+      ctx.moveTo(px(cities[roads[id].a]), py(cities[roads[id].a]));
+      ctx.lineTo(px(cities[roads[id].b]), py(cities[roads[id].b]));
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
   cities.forEach((city) => {
     const x = px(city);
     const y = py(city);

@@ -142,8 +142,8 @@ export const SIGNATURES: Signature[] = [
       ],
     },
     notice: {
-      en: ["Rejected roads are always the longer of two paths around a loop: the ledger shows why each one lost.", "The tree has exactly cities − 1 roads, whatever the candidates were.", "Curitiba's neighbours connect through short links; the west joins through the long Cascavel–Guarapuava stretch."],
-      pt: ["As estradas rejeitadas são sempre a mais longa entre dois caminhos ao redor de uma volta: o registro mostra por que cada uma perdeu.", "A árvore tem exatamente cidades − 1 estradas, sejam quais forem as candidatas.", "As vizinhas de Curitiba se conectam por ligações curtas; o oeste se junta pelo longo trecho Cascavel–Guarapuava."],
+      en: ["A rejected road is the longest road of the loop it would close: the violet path already joins its two ends, and every piece of that path is shorter, even when the detour is hundreds of kilometres.", "The tree minimises total asphalt, not driving distance: Foz do Iguaçu to Francisco Beltrão is a long way around, and that is the price of the cheapest network.", "The tree has exactly cities − 1 roads, whatever the candidates were."],
+      pt: ["Uma estrada rejeitada é a mais longa da volta que ela fecharia: o caminho violeta já liga suas duas pontas, e cada pedaço desse caminho é mais curto, mesmo quando o desvio tem centenas de quilômetros.", "A árvore minimiza o asfalto total, não a distância de viagem: de Foz do Iguaçu a Francisco Beltrão é uma volta longa, e esse é o preço da rede mais barata.", "A árvore tem exatamente cidades − 1 estradas, sejam quais forem as candidatas."],
     },
     card: { starter: "graph", n: 16, r: 3 },
   },

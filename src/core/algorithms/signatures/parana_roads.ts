@@ -6,7 +6,8 @@ import type { Counter, Recording, StepBase } from "../recording";
 export type City = { id: number; name: string; lat: number; lon: number };
 export type Road = { id: number; a: number; b: number; km: number };
 export type RoadMark = "cur" | "used" | "rejected";
-export type RoadsStep = StepBase & { cities: City[]; roads: Road[]; roadMarks: Map<number, RoadMark>; connected: Set<number>; sorted: number[]; position: number; total: number };
+// `loop` is the built path that already joins the two ends of a rejected road: the roads the new one would close a loop with.
+export type RoadsStep = StepBase & { cities: City[]; roads: Road[]; roadMarks: Map<number, RoadMark>; connected: Set<number>; sorted: number[]; position: number; total: number; loop: number[] };
 
 // Approximate coordinates of the city centres.
 const CITIES: [string, number, number][] = [
@@ -91,7 +92,27 @@ export function recordParanaRoads(): Recording<RoadsStep> {
   const name = (id: number) => cities[id].name;
   const label = (road: Road) => `${name(road.a)} – ${name(road.b)} (${road.km} km)`;
   const counters = (): Record<string, Counter> => ({ cities: cities.length, candidates: roads.length, built, builtUnit: `/ ${cities.length - 1}`, km: total, rejected, components });
-  const push = (line: number, note: Localized) => steps.push({ cities, roads, roadMarks: new Map(roadMarks), connected: new Set(connected), sorted, position, total, line, note, counters: counters() });
+  let loop: number[] = [];
+  const links = new Map<number, { road: number; to: number }[]>();
+  // The path between two cities through the roads built so far, as road ids.
+  const pathBetween = (from: number, to: number) => {
+    const via = new Map<number, { road: number; from: number }>();
+    const queue = [from];
+    via.set(from, { road: -1, from: -1 });
+    while (queue.length) {
+      const city = queue.shift()!;
+      if (city === to) break;
+      (links.get(city) ?? []).forEach((link) => {
+        if (via.has(link.to)) return;
+        via.set(link.to, { road: link.road, from: city });
+        queue.push(link.to);
+      });
+    }
+    const path: number[] = [];
+    for (let city = to; city !== from; city = via.get(city)!.from) path.push(via.get(city)!.road);
+    return path.reverse();
+  };
+  const push = (line: number, note: Localized) => steps.push({ cities, roads, roadMarks: new Map(roadMarks), connected: new Set(connected), sorted, position, total, loop: [...loop], line, note, counters: counters() });
 
   push(2, { en: `${cities.length} cities and ${roads.length} candidate roads, each city linked to its ${NEAREST} nearest neighbours. Sort the roads by length: the shortest is ${label(roads[sorted[0]])}.`, pt: `${cities.length} cidades e ${roads.length} estradas candidatas, cada cidade ligada às ${NEAREST} vizinhas mais próximas. Ordena as estradas por comprimento: a mais curta é ${label(roads[sorted[0]])}.` });
   sorted.forEach((id, index) => {
@@ -102,7 +123,14 @@ export function recordParanaRoads(): Recording<RoadsStep> {
     if (find(road.a) === find(road.b)) {
       rejected++;
       roadMarks.set(id, "rejected");
-      push(6, { en: `${name(road.a)} and ${name(road.b)} are already connected by shorter roads: this one would only close a loop. Rejected.`, pt: `${name(road.a)} e ${name(road.b)} já estão conectadas por estradas mais curtas: esta só fecharia uma volta. Rejeitada.` });
+      loop = pathBetween(road.a, road.b);
+      const detour = loop.reduce((sum, roadId) => sum + roads[roadId].km, 0);
+      const longest = Math.max(...loop.map((roadId) => roads[roadId].km));
+      push(6, {
+        en: `${name(road.a)} and ${name(road.b)} are already in the same network: the violet path joins them through ${loop.length} roads built earlier (${detour} km in all, the longest ${longest} km). Building this one would close a loop in which it is the longest road, so the tree is cheaper without it. Rejected.`,
+        pt: `${name(road.a)} e ${name(road.b)} já estão na mesma rede: o caminho violeta as liga por ${loop.length} estradas construídas antes (${detour} km ao todo, a mais longa com ${longest} km). Construir esta fecharia uma volta em que ela seria a estrada mais longa, então a árvore fica mais barata sem ela. Rejeitada.`,
+      });
+      loop = [];
       return;
     }
     parent[find(road.a)] = find(road.b);
@@ -112,10 +140,12 @@ export function recordParanaRoads(): Recording<RoadsStep> {
     roadMarks.set(id, "used");
     connected.add(road.a);
     connected.add(road.b);
+    links.set(road.a, [...(links.get(road.a) ?? []), { road: id, to: road.b }]);
+    links.set(road.b, [...(links.get(road.b) ?? []), { road: id, to: road.a }]);
     push(8, { en: `Build it: ${name(road.a)} and ${name(road.b)} join. ${components} network${components === 1 ? "" : "s"} left, ${total} km of road so far.`, pt: `Constrói: ${name(road.a)} e ${name(road.b)} se juntam. ${components} rede${components === 1 ? "" : "s"} restante${components === 1 ? "" : "s"}, ${total} km de estrada até aqui.` });
   });
   position = -1;
-  push(10, { en: `Done: ${built} roads, ${total} km, every city reachable from every other. ${rejected} candidates were rejected because a shorter path already existed.`, pt: `Pronto: ${built} estradas, ${total} km, toda cidade alcançável a partir de qualquer outra. ${rejected} candidatas foram rejeitadas porque um caminho mais curto já existia.` });
+  push(10, { en: `Done: ${built} roads, ${total} km, every city reachable from every other. ${rejected} candidates were rejected because their two ends were already joined by the network.`, pt: `Pronto: ${built} estradas, ${total} km, toda cidade alcançável a partir de qualquer outra. ${rejected} candidatas foram rejeitadas porque suas duas pontas já estavam ligadas pela rede.` });
   const meta: Localized = { en: `${cities.length} cities · ${roads.length} candidate roads · ${steps.length} steps`, pt: `${cities.length} cidades · ${roads.length} estradas candidatas · ${steps.length} passos` };
   return { steps, meta };
 }

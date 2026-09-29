@@ -17,7 +17,7 @@ import StepPlayer from "./step_player";
 import { counterText, formatNumber } from "@/utils/format";
 import { drawCityMap, setVizTheme, type Ctx } from "@/utils/viz";
 
-const LEGEND: [VizKey, Localized][] = [["act", { en: "considering", pt: "em análise" }], ["primary", { en: "built", pt: "construída" }], ["def", { en: "rejected (dashed)", pt: "rejeitada (tracejada)" }], ["green", { en: "connected city", pt: "cidade conectada" }]];
+const LEGEND: [VizKey, Localized][] = [["act", { en: "considering", pt: "em análise" }], ["primary", { en: "built", pt: "construída" }], ["violet", { en: "path that already joins the ends", pt: "caminho que já liga as pontas" }], ["def", { en: "rejected (dashed)", pt: "rejeitada (tracejada)" }], ["green", { en: "connected city", pt: "cidade conectada" }]];
 
 const T = {
   en: { cities: "CITIES", citiesSub: "real coordinates", candidates: "CANDIDATE ROADS", candidatesSub: "3 nearest neighbours each", built: "ROADS BUILT", builtSub: "cities − 1 when done", km: "TOTAL KM", kmSub: "of asphalt so far", rejected: "REJECTED", rejectedSub: "would only close a loop", ledger: "ROADS BY LENGTH", built1: "built", rejected1: "rejected" },
