@@ -59,6 +59,11 @@ const en = {
   runWith: "RUN WITH",
   howComputed: "how this number is computed",
   close: "Close",
+  whatToNotice: "What to notice",
+  openAlgorithm: "Open the algorithm page",
+  fromPage: "built on",
+  run: "Run",
+  reset: "Reset",
 };
 
 const pt: typeof en = {
@@ -122,6 +127,11 @@ const pt: typeof en = {
   runWith: "RODAR COM",
   howComputed: "como este número é calculado",
   close: "Fechar",
+  whatToNotice: "O que observar",
+  openAlgorithm: "Abrir a página do algoritmo",
+  fromPage: "construído sobre",
+  run: "Rodar",
+  reset: "Reiniciar",
 };
 
 export const TRANSLATIONS = { en, pt };

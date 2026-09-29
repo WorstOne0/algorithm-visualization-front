@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 // Controllers
 import { useLanguageController } from "@/core/controllers";
 // Models
-import { FAMILIES, TRANSLATIONS } from "@/core/models";
+import { FAMILIES, SIGNATURES, TRANSLATIONS } from "@/core/models";
 // Components
 import { AmbientBand } from "@/components";
 import FamilyCard from "./_components/family_card";
 import Hero from "./_components/hero";
 import PreviewWell from "./_components/preview_well";
 import Showpiece from "./_components/showpiece";
+import SignatureCard from "./_components/signature_card";
 
 // The preview well rotates through the families; picking one in its header restarts the clock.
 const ROTATE_MS = 30000;
@@ -52,7 +53,7 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-        <section className="flex flex-col gap-[1.4rem]">
+        <section id="signatures" className="flex flex-col gap-[1.4rem]">
           <div className="flex items-end gap-[1.2rem]">
             <div className="flex flex-col gap-[0.4rem]">
               <span className="font-mono text-[1.1rem] tracking-[0.1em] text-violet">{`// ${t.showpieceKicker}`}</span>
@@ -62,6 +63,11 @@ export default function HomePage() {
             <span className="text-[1.25rem] text-muted">{t.signaturesHint}</span>
           </div>
           <Showpiece />
+          <div className="grid grid-cols-4 gap-[1.4rem]">
+            {SIGNATURES.map((signature) => (
+              <SignatureCard key={signature.id} signature={signature} />
+            ))}
+          </div>
         </section>
       </div>
     </>

@@ -1,13 +1,14 @@
 // Utils
-import { otherEnd, straightLine, type RoadMap } from "./road_map";
+import { otherEnd, straightLine, type RoadEdge, type RoadMap } from "./road_map";
 
 export type RoadAlgo = "bfs" | "dijkstra" | "astar";
 
 // The search after each expansion; `order` and `parent` are shared and only grow, so a snapshot is an index into them.
 export type RoadSearchState = { cur: number; order: number[]; parent: Int32Array; dist: Float64Array; open: number[]; path: number[]; done: boolean };
 
-// Best-first over the road graph; the strategy only decides which open node comes out next.
-export function* roadSearch(map: RoadMap, algo: RoadAlgo, start: number, goal: number): Generator<RoadSearchState, void, void> {
+// Best-first over the road graph; the strategy only decides which open node comes out next. `cost` is what an edge adds to
+// the distance: metres by default, metres × slowdown on the traffic page.
+export function* roadSearch(map: RoadMap, algo: RoadAlgo, start: number, goal: number, cost: (edge: RoadEdge) => number = (edge) => edge.length): Generator<RoadSearchState, void, void> {
   const count = map.x.length;
   const dist = new Float64Array(count).fill(Infinity);
   const parent = new Int32Array(count).fill(-1);
@@ -44,7 +45,7 @@ export function* roadSearch(map: RoadMap, algo: RoadAlgo, start: number, goal: n
       const next = otherEnd(edge, cur);
       if (closed[next]) continue;
       // BFS counts hops, the others metres.
-      const candidate = dist[cur] + (algo === "bfs" ? 1 : edge.length);
+      const candidate = dist[cur] + (algo === "bfs" ? 1 : cost(edge));
       if (candidate >= dist[next]) continue;
       dist[next] = candidate;
       parent[next] = cur;

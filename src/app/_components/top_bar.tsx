@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 // Controllers
 import { useLanguageController } from "@/core/controllers";
 // Models
-import { findAlgorithm, findFamily, localize, TRANSLATIONS, type Lang } from "@/core/models";
+import { findAlgorithm, findFamily, findSignature, localize, TRANSLATIONS, type Lang } from "@/core/models";
 // Icons
 import { SearchIcon } from "@/components/icons";
 
@@ -21,6 +21,7 @@ export default function TopBar() {
   const [familyId, algorithmSlug] = pathname.split("/").filter(Boolean);
   const family = familyId ? findFamily(familyId) : undefined;
   const algorithm = family && algorithmSlug ? findAlgorithm(family.id, algorithmSlug) : undefined;
+  const signature = familyId === "signatures" && algorithmSlug ? findSignature(algorithmSlug) : undefined;
 
   const buildLangTab = (id: Lang) => (
     <button type="button" onClick={() => setLang(id)} className={`${LANG_TAB} ${lang === id ? "bg-surface-2 text-text" : "text-faint"}`}>
@@ -47,6 +48,16 @@ export default function TopBar() {
           <>
             <span className="text-faint">/</span>
             <span className="text-text">{algorithm.name}</span>
+          </>
+        )}
+        {signature && (
+          <>
+            <span className="text-faint">/</span>
+            <Link href="/#signatures" className="hover:text-text">
+              {t.signatures}
+            </Link>
+            <span className="text-faint">/</span>
+            <span className="text-text">{localize(signature.name, lang)}</span>
           </>
         )}
       </div>

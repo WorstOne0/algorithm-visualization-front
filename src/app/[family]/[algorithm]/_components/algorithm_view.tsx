@@ -9,9 +9,9 @@ import { SPEEDS, usePlayerController } from "../_controllers/player_controller";
 // Models
 import type { GraphStep } from "@/core/algorithms/graphs/graph_model";
 import { getRoadMap } from "@/core/algorithms/pathfinding/road_map";
-import { RECORDERS, type Counter } from "@/core/algorithms";
+import { RECORDERS } from "@/core/algorithms";
 import type { BarsStep } from "@/core/algorithms/sorting/bars_recorder";
-import { ALGORITHMS, FAMILIES, findAlgorithm, localize, TRANSLATIONS, type AlgorithmId, type Lang } from "@/core/models";
+import { ALGORITHMS, FAMILIES, findAlgorithm, localize, TRANSLATIONS, type AlgorithmId } from "@/core/models";
 // Components
 import { KpiTiles } from "@/components";
 import CodePanel from "./code_panel";
@@ -20,10 +20,9 @@ import Player from "./player";
 // Icons
 import { BackIcon } from "@/components/icons";
 // Utils
+import { counterText } from "@/utils/format";
 import { blip } from "@/utils/sound";
 import { drawStep, graphNodeAt, moveGraphNode, roadNodeAt, setVizTheme, type Ctx } from "@/utils/viz";
-
-const counterText = (value: Counter | undefined, lang: Lang) => (value === undefined ? "" : typeof value === "object" ? localize(value, lang) : String(value));
 
 export default function AlgorithmView({ algorithmId }: { algorithmId: AlgorithmId }) {
   const lang = useLanguageController((state) => state.lang);
