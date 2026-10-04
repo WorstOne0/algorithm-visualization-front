@@ -20,7 +20,9 @@ export default function CategoryView({ familyId }: { familyId: FamilyId }) {
   const t = TRANSLATIONS[lang];
   const family = FAMILIES.find((candidate) => candidate.id === familyId)!;
   const rows = ALGORITHMS_BY_FAMILY[familyId];
-  const flagship = family.flagship ? ALGORITHMS[family.flagship] : null;
+  // The start button always opens a page: the family's flagship, else the first row that has one.
+  const firstPage = rows.find((row) => row.page)?.page;
+  const flagship = family.flagship ? ALGORITHMS[family.flagship] : firstPage ? ALGORITHMS[firstPage] : null;
   const flagshipName = flagship ? flagship.name : rows[0].name;
 
   const buildStartButton = () => {
